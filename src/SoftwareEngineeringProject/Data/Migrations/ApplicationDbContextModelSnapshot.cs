@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using SoftwareEngineeringProject.Data;
 
 namespace SoftwareEngineeringProject.Data.Migrations
 {
@@ -15,10 +13,10 @@ namespace SoftwareEngineeringProject.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.0.0-rc3")
+                .HasAnnotation("ProductVersion", "1.0.0-rtm-21431")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole<string>", b =>
                 {
                     b.Property<string>("Id");
 
@@ -174,9 +172,124 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.Manufacturer", b =>
+                {
+                    b.Property<string>("ManufacturerID")
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("ManufacturerID");
+
+                    b.ToTable("Manufacturers");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>
+                {
+                    b.Property<string>("PhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<byte>("PhoneModelVariantID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Colour")
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<bool>("IsUnlocked")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Memory")
+                        .HasColumnType("varchar(16)");
+
+                    b.HasKey("PhoneModelID", "PhoneModelVariantID");
+
+                    b.HasIndex("PhoneModelID");
+
+                    b.ToTable("Phones");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.PhoneModel", b =>
+                {
+                    b.Property<string>("PhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ManufacturerID")
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("PhoneModelID");
+
+                    b.HasIndex("ManufacturerID");
+
+                    b.ToTable("PhoneModels");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.Vendor", b =>
+                {
+                    b.Property<string>("VendorID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("VendorID");
+
+                    b.ToTable("Vendors");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorCrawlPage", b =>
+                {
+                    b.Property<string>("VendorID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<byte>("VendorCrawlPageID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("URL")
+                        .HasColumnType("varchar(2083)");
+
+                    b.HasKey("VendorID", "VendorCrawlPageID");
+
+                    b.HasIndex("VendorID");
+
+                    b.ToTable("VendorCrawlPages");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorPhone", b =>
+                {
+                    b.Property<string>("VendorID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("PhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<byte>("PhoneModelVariantID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("URL")
+                        .HasColumnType("varchar(2083)");
+
+                    b.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID");
+
+                    b.HasIndex("VendorID");
+
+                    b.HasIndex("PhoneModelID", "PhoneModelVariantID");
+
+                    b.ToTable("VendorPhones");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole<string>")
                         .WithMany("Claims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -200,7 +313,7 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole<string>")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -208,6 +321,42 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.HasOne("SoftwareEngineeringProject.Models.ApplicationUser")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.PhoneModel", "Model")
+                        .WithMany("Phones")
+                        .HasForeignKey("PhoneModelID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.PhoneModel", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.Manufacturer", "Manufacturer")
+                        .WithMany("PhoneModels")
+                        .HasForeignKey("ManufacturerID");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorCrawlPage", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.Vendor", "Vendor")
+                        .WithMany("CrawlPages")
+                        .HasForeignKey("VendorID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorPhone", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.Vendor", "Vendor")
+                        .WithMany("VendorPhones")
+                        .HasForeignKey("VendorID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SoftwareEngineeringProject.Models.Phone", "Phone")
+                        .WithMany("VendorPhones")
+                        .HasForeignKey("PhoneModelID", "PhoneModelVariantID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }
