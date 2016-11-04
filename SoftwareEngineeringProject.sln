@@ -13,6 +13,9 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SoftwareEngineeringProject", "src\SoftwareEngineeringProject\SoftwareEngineeringProject.xproj", "{06C2053A-8942-4C1C-A6FE-E8078C238DE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbotPhantomJs", "..\..\..\Visual Studio 2015\Projects\abot-phantomjs-master\AbotPhantomJs\AbotPhantomJs.csproj", "{A803BE6A-4B09-47FB-95DF-0369C87F6656}"
+	ProjectSection(ProjectDependencies) = postProject
+		{06C2053A-8942-4C1C-A6FE-E8078C238DE9} = {06C2053A-8942-4C1C-A6FE-E8078C238DE9}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
