@@ -1,8 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
-<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
+<head>
+    <link rel="stylesheet" href="~/css/Filter.css" />
+    <link rel="stylesheet" href="~/css/homepage.css" />
+</head>
+<div class="col-md-12" style="padding-left:0px;">
+    <div class="col-md-12" style="background-color:midnightblue; color:white; padding-left:0px;">
+        <h2>Look for a phone</h2>
+        <div class="col-md-4" style="padding-left:0px;">
+            <div class="col-md-12" style="padding-left:0px;">
+                <button style="width:100%; color:midnightblue; height:50px;">Browse by Manufacturer</button>
+            </div>
+            <div class="col-md-12" style="padding-left:0px;">
+                <button style="width:100%; color:midnightblue; height:50px;">Browse by Model</button>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <form>
+                <input class="form-control" type="text" name="search" placeholder="Search Manufacturer, model...">
+            </form>
+        </div>
+    </div>
+</div>
+<div id="myCarousel" class="carousel slide col-md-12" data-ride="carousel" data-interval="6000">
     <ol class="carousel-indicators">
         <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
         <li data-target="#myCarousel" data-slide-to="1"></li>
