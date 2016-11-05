@@ -1,7 +1,9 @@
-﻿{
+{
   "userSecretsId": "aspnet-SoftwareEngineeringProject-2573bd5d-ad4c-44c6-86ad-9d033341f66f",
 
   "dependencies": {
+    "font-awesome": "4.6.1",
+    "ImageProcessor": "2.4.5",
     "Microsoft.ApplicationInsights.AspNetCore": "1.0.0",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",

@@ -20,7 +20,7 @@ namespace SoftwareEngineeringProject.Models
         public override DateTime? LastUpdatedDate { get; set; }
         public ICollection<Phone> Phones { get; set; }
         [NotMapped]
-        protected override string[] columnNames
+        protected override string[] ColumnNames
         {
             get
             {
@@ -28,7 +28,7 @@ namespace SoftwareEngineeringProject.Models
             }
         }
         [NotMapped]
-        protected override object[] values
+        protected override object[] Values
         {
             get
             {

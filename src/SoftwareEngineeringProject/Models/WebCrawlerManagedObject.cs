@@ -16,9 +16,9 @@ namespace SoftwareEngineeringProject.Models
                 return GetType().Name + "s";
             }
         }
-        protected virtual string[] columnNames { get; }
-        protected virtual object[] values { get; }
-        protected virtual int keyCount {
+        protected virtual string[] ColumnNames { get; }
+        protected virtual object[] Values { get; }
+        protected virtual int KeyCount {
             get
             {
                 return 1;
@@ -27,11 +27,11 @@ namespace SoftwareEngineeringProject.Models
         protected virtual string IdWhereClause {
             get
             {
-                string[] columnNames = this.columnNames;
-                object[] values = this.values;
+                string[] columnNames = ColumnNames;
+                object[] values = Values;
 
                 string whereClause = " WHERE ";
-                for (int v = 0; v < keyCount; v++)
+                for (int v = 0; v < KeyCount; v++)
                 {
                     object value = values[v];
                     string columnName = columnNames[v];
@@ -41,13 +41,13 @@ namespace SoftwareEngineeringProject.Models
                 return whereClause;
             }
         }
-        protected virtual string IdString {
+        public virtual string IdString {
             get
             {
                 string retVal = "";
-                object[] values = this.values;
+                object[] values = this.Values;
 
-                for (int k = 0; k < keyCount; k++)
+                for (int k = 0; k < KeyCount; k++)
                 {
                     retVal += (k > 0 ? "/" : "") + values[k].ToString();
                 }
@@ -63,11 +63,11 @@ namespace SoftwareEngineeringProject.Models
             conn.Open();
 
             SqlCommand command;
-            string commandText = "INSERT INTO " + tableName + "(" + string.Join(", ", columnNames) + ") VALUES (";
+            string commandText = "INSERT INTO " + tableName + "(" + string.Join(", ", ColumnNames) + ") VALUES (";
 
-            for (int v = 0; v < values.Length; v++)
+            for (int v = 0; v < Values.Length; v++)
             {
-                object value = values[v];
+                object value = Values[v];
                 commandText += (v > 0 ? ", " : "") + ((value is int || value is byte) ? value.ToString() : value is DateTime? ? "CAST('" + value.ToString() + "' AS DATETIME2)" : "'" + value.ToString() + "'");
             }
 
@@ -80,7 +80,7 @@ namespace SoftwareEngineeringProject.Models
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("{0} was successfully added to the database.", ToString());
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Gray;
 
             return this;
         }
@@ -95,6 +95,22 @@ namespace SoftwareEngineeringProject.Models
             command.ExecuteNonQuery();
 
             conn.Close();
+
+            return this;
+        }
+
+        public WebCrawlerManagedObject DeleteItem(SqlConnection conn)
+        {
+            conn.Open();
+
+            SqlCommand command = new SqlCommand("DELETE FROM " + tableName + IdWhereClause, conn);
+            command.ExecuteNonQuery();
+
+            conn.Close();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("{0} was successfully deleted from the database.", ToString());
+            Console.ForegroundColor = ConsoleColor.Gray;
 
             return this;
         }

@@ -12,12 +12,12 @@ namespace SoftwareEngineeringProject.Models
         [Key]
         [Column(Order = 0, TypeName = "varchar(64)")]
         public string VendorID { get; set; }
-        public ICollection<VendorPhone> VendorPhones { get; set; }
-        public ICollection<VendorCrawlPage> CrawlPages { get; set; }
         [Column(Order = 1, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
+        public ICollection<VendorPhone> VendorPhones { get; set; }
+        public ICollection<VendorCrawlPage> CrawlPages { get; set; }
         [NotMapped]
-        protected override string[] columnNames
+        protected override string[] ColumnNames
         {
             get
             {
@@ -25,7 +25,7 @@ namespace SoftwareEngineeringProject.Models
             }
         }
         [NotMapped]
-        protected override object[] values
+        protected override object[] Values
         {
             get
             {

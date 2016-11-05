@@ -1,0 +1,163 @@
+﻿@model PhoneModel
+
+@{
+    ViewData["Title"] = Model.PhoneModelID + " - Details";
+
+    IEnumerable<VendorPhone> vendorPhones = Model.Phones.SelectMany(p => p.VendorPhones);
+    IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct();
+    IEnumerable<string> vendorIDOptions = vendorPhones.Select(vp => vp.VendorID).Distinct();
+    Dictionary<bool, List<string>> carrierPaymentOptions = new Dictionary<bool, List<string>>();
+    Dictionary<string, List<string>> carrierMemoryOptions = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> carrierColourOptions = new Dictionary<string, List<string>>();
+
+    foreach (VendorPhone vp in vendorPhones)
+    {
+        if (!carrierPaymentOptions.ContainsKey(vp.Phone.IsUnlocked)) {
+            carrierPaymentOptions.Add(vp.Phone.IsUnlocked, new List<string>() { vp.CarrierID });
+        } else if (!carrierPaymentOptions.Keys.Contains(vp.Phone.IsUnlocked))
+        {
+            carrierPaymentOptions[vp.Phone.IsUnlocked].Add(vp.CarrierID);
+        }
+        if (!carrierMemoryOptions.ContainsKey(vp.Phone.Memory))
+        {
+            carrierMemoryOptions.Add(vp.Phone.Memory, new List<string>() { vp.CarrierID });
+        }
+        else if (!carrierMemoryOptions.Keys.Contains(vp.Phone.Memory))
+        {
+            carrierMemoryOptions[vp.Phone.Memory].Add(vp.CarrierID);
+        }
+        if (!carrierColourOptions.ContainsKey(vp.Phone.Colour))
+        {
+            carrierColourOptions.Add(vp.Phone.Colour, new List<string>() { vp.CarrierID });
+        }
+        else if (!carrierColourOptions.Keys.Contains(vp.Phone.Colour))
+        {
+            carrierColourOptions[vp.Phone.Colour].Add(vp.CarrierID);
+        }
+    }
+}
+
+<link href="~/css/phone.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#phone-carrier-select").change(function () {
+            var carrierID = $(this).val();
+            $("option[data-carrier-id]").each(function () {
+                $(this).prop("disabled", $(this).data("carrier-id").split(",").indexOf(carrierID) == -1);
+            });
+
+            $("#phone-payment-option-select, phone-memory-select, phone-colour-select").each(function () {
+                if ($(this).children(":selected").prop("disabled"))
+                    $(this).val($(this).children(":first-child").html());
+            });
+        });
+    });
+</script>
+
+<div class="row">
+    <h2>@Model.PhoneModelID</h2>
+    <hr />
+    <div id="phone-image-container" class="col-md-3">
+        <img style="width:100%; height:auto;" src="@Model.Phones.First().ImageURL" />
+        <button class="btn btn-primary btn-block">Add to Tracking</button>
+    </div>
+    <div class="col-md-9">
+        <h2>Price Comparison</h2>
+        <hr />
+        <div class="col-md-6">
+            <h4>Details</h4>
+            <br />
+            <span>
+                Carrier
+                <select id="phone-carrier-select" class="form-control">
+                    <option>--Carrier--</option>
+                    @foreach (string carrierID in carrierIDOptions)
+                    {
+                        <option>@carrierID</option>
+                    }
+                </select>
+            </span>
+            <br />
+            <span>
+                Payment Option
+                <select id="phone-payment-option-select" class="form-control">
+                    <option>--Payment Option--</option>
+                    @foreach (bool payment in carrierPaymentOptions.Keys.OrderBy(p => p))
+                    {
+                        <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment" disabled>@(payment ? "Unlocked" : "Contract")</option>
+                    }
+                </select>
+            </span>
+            <br />
+            <span>
+                Internal Memory
+                <select id="phone-memory-select" class="form-control">
+                    <option>--Internal Memory--</option> 
+                    @foreach (string memory in carrierMemoryOptions.Keys.OrderBy(m => FormatHelper.PadNumbers(m)))
+                    {
+                        <option data-carrier-ids="@string.Join(",", carrierMemoryOptions[memory].ToArray())" value="@memory" disabled>@memory</option>
+                    }
+                </select>
+            </span>
+            <br />
+            <span>
+                Colour
+                <select id="phone-colour-select" class="form-control">
+                    <option>--Colour--</option>
+                    @foreach (string colour in carrierColourOptions.Keys.OrderBy(c => c))
+                    {
+                        <option data-carrier-ids="@string.Join(",", carrierColourOptions[colour].ToArray())" value="@colour" disabled>@colour</option>
+                    }
+                </select>
+            </span>
+        </div>
+        <div class="col-md-6">
+            <p>Vendors</p>
+            <table id="phone-vendors-table" style="border: 1px solid black;">
+                <tr>
+                    <td><a href="javascript:void(0)">Rogers.ca</a></td>
+                    <td>2 year contract</td>
+                    <td>$199.99</td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:void(0)">Walmart.ca</a></td>
+                    <td>2 year contract</td>
+                    <td>$249.99</td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:void(0)">Bestbuy.ca</a></td>
+                    <td>1 year contract</td>
+                    <td>$349.99</td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:void(0)">Amazon.ca </a></td>
+                    <td>1 year contract </td>
+                    <td>$299.99 </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <h3>Specifications</h3>
+    <hr />
+    <h4>Overview</h4>
+    <p>
+        All-new dual 12MP cameras. The brightest, most colourful iPhone display ever.
+        The fastest performance and best battery life in an iPhone. Water- and splash-resistant. And stereo speakers. Every bit as powerful as it looks -- this is iPhone 7 Plus.
+    </p>
+    <h4>More Information</h4>
+    <p>5.5-inch (diagonal) Retina HD display with 1920-by-1080 resolution and wide colour</p><br />
+    <p>3D Touch</p>
+    <p>
+        New 12MP cameras with optical zoom at 2x, digital zoom up to 10x, optical image stabilization, Quad-LED True Tone flash and Live Photos
+        Splash-, water- and dust-resistant
+        A10 Fusion chip with integrated M10 motion coprocessor
+        4K video recording at 30 fps and slo-mo video recording for 1080p at 120 fps
+        7MP FaceTime HD camera with Retina Flash
+        Touch ID fingerprint sensor built into the new Home button
+        LTE Advanced up to 450 Mbps and 802.11a/b/g/n/ac Wi-Fi with MIMO
+        iOS 10 and iCloud
+    </p>
+</div>

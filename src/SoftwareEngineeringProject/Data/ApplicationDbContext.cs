@@ -13,6 +13,7 @@ namespace SoftwareEngineeringProject.Data
         public DbSet<Vendor> Vendors { get; set; }
         public DbSet<PhoneModel> PhoneModels { get; set; }
         public DbSet<Phone> Phones { get; set; }
+        public DbSet<Carrier> Carriers { get; set; }
         public DbSet<VendorPhone> VendorPhones { get; set; }
         public DbSet<VendorCrawlPage> VendorCrawlPages { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
@@ -35,13 +36,19 @@ namespace SoftwareEngineeringProject.Data
             });
             builder.Entity<Phone>(e =>
             {
-                e.HasKey("PhoneModelID", "PhoneModelVariantID");
+                e.HasKey("PhoneModelID", "PhoneModelVariantID", "CarrierID");
                 e.HasOne(x => x.Model).WithMany(x => x.Phones);
+                e.HasOne(x => x.Carrier).WithMany(x => x.Phones);
                 e.HasMany(x => x.VendorPhones).WithOne(x => x.Phone);
+            });
+            builder.Entity<Carrier>(e =>
+            {
+                e.HasKey("CarrierID");
+                e.HasMany(x => x.Phones).WithOne(x => x.Carrier);
             });
             builder.Entity<VendorPhone>(e =>
             {
-                e.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID");
+                e.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID", "CarrierID");
                 e.HasOne(x => x.Vendor).WithMany(x => x.VendorPhones);
                 e.HasOne(x => x.Phone).WithMany(x => x.VendorPhones);
             });

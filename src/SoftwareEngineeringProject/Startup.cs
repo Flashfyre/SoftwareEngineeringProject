@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using SoftwareEngineeringProject.Data;
 using SoftwareEngineeringProject.Models;
 using SoftwareEngineeringProject.Services;
+using SoftwareEngineeringProject.Models.Repositories;
 
 namespace SoftwareEngineeringProject
 {
@@ -54,6 +55,8 @@ namespace SoftwareEngineeringProject
 
             services.AddMvc();
 
+            services.AddScoped<PhoneModelRepository, PhoneModelRepository>();
+
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -91,6 +94,12 @@ namespace SoftwareEngineeringProject
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "phone",
+                    template: "{controller=Phone}/{PhoneModelID}/{action=Index}");
+                routes.MapRoute(
+                    name: "search",
+                    template: "{controller=Search}/{SearchType?}/{action=Index}");
             });
 
             SeedData.Initialize(app.ApplicationServices);

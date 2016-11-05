@@ -3,6 +3,18 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.5.2": {
+      "font-awesome/4.6.1": {
+        "type": "package"
+      },
+      "ImageProcessor/2.4.5": {
+        "type": "package",
+        "compile": {
+          "lib/net45/ImageProcessor.dll": {}
+        },
+        "runtime": {
+          "lib/net45/ImageProcessor.dll": {}
+        }
+      },
       "Libuv/1.9.0": {
         "type": "package",
         "dependencies": {
@@ -2304,6 +2316,35 @@
     }
   },
   "libraries": {
+    "font-awesome/4.6.1": {
+      "sha512": "u0O32zxtLJB9lQ6jhesk9h27v+sDL++T4qLaXL7sijR7tB4IohV/6s/YTH12ScKIhXfNqAfsfh0RtyCYQBBspw==",
+      "type": "package",
+      "path": "font-awesome/4.6.1",
+      "files": [
+        "content/css/font-awesome.css",
+        "content/css/font-awesome.min.css",
+        "content/fonts/FontAwesome.otf",
+        "content/fonts/fontawesome-webfont.eot",
+        "content/fonts/fontawesome-webfont.svg",
+        "content/fonts/fontawesome-webfont.ttf",
+        "content/fonts/fontawesome-webfont.woff",
+        "content/fonts/fontawesome-webfont.woff2",
+        "font-awesome.4.6.1.nupkg.sha512",
+        "font-awesome.nuspec",
+        "tools/install.ps1"
+      ]
+    },
+    "ImageProcessor/2.4.5": {
+      "sha512": "Pnt/Dja3Vc6jtzd0tSl300tL8wkygz/z25+9pZfnNzkzU8eaatnhXBW6bP6YyNlxZHttadDw5ZSObowECjQLcg==",
+      "type": "package",
+      "path": "ImageProcessor/2.4.5",
+      "files": [
+        "ImageProcessor.2.4.5.nupkg.sha512",
+        "ImageProcessor.nuspec",
+        "lib/net40/ImageProcessor.dll",
+        "lib/net45/ImageProcessor.dll"
+      ]
+    },
     "Libuv/1.9.0": {
       "sha512": "9Q7AaqtQhS8JDSIvRBt6ODSLWDBI4c8YxNxyCQemWebBFUtBbc6M5Vi5Gz1ZyIUlTW3rZK9bIr5gnVyv0z7a2Q==",
       "type": "package",
@@ -5913,6 +5954,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "ImageProcessor >= 2.4.5",
       "Microsoft.ApplicationInsights.AspNetCore >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.Cookies >= 1.0.0",
       "Microsoft.AspNetCore.Diagnostics >= 1.0.0",
@@ -5935,7 +5977,8 @@
       "Microsoft.Extensions.Options.ConfigurationExtensions >= 1.0.0",
       "Microsoft.VisualStudio.Web.BrowserLink.Loader >= 14.0.0",
       "Microsoft.VisualStudio.Web.CodeGeneration.Tools >= 1.0.0-preview2-final",
-      "Microsoft.VisualStudio.Web.CodeGenerators.Mvc >= 1.0.0-preview2-final"
+      "Microsoft.VisualStudio.Web.CodeGenerators.Mvc >= 1.0.0-preview2-final",
+      "font-awesome >= 4.6.1"
     ],
     ".NETFramework,Version=v4.5.2": []
   },

@@ -56,6 +56,7 @@ namespace SoftwareEngineeringProject.Data
                     "HTC",
                     "Kyocera",
                     "LG",
+                    "Microsoft",
                     "Motorola",
                     "Nokia",
                     "Samsung",

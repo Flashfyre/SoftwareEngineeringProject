@@ -1,0 +1,104 @@
+﻿@model IEnumerable<PhoneModel>
+
+@{
+    ViewData["Title"] = "Search Results for \"" + ViewData["Query"] + "\"";
+}
+
+<link href="~/css/search.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#results-container > .result > a").click(function () {
+            var isSelected = $(this).parent().hasClass("selected");
+            var shouldTransitionDetails = !isSelected && $("#results-container > .result.selected").length > 0;
+            $("#results-container > .result.selected").removeClass("bg-info").removeClass("selected");
+            if (!isSelected) {
+                var resultLink = $(this);
+                console.log(shouldTransitionDetails);
+                if (shouldTransitionDetails) {
+                    $("#details-container > img").animate({
+                        opacity: 0.0
+                    }, 250, function () {
+                        ShowPhoneDetails(resultLink);
+                    });
+                } else
+                    ShowPhoneDetails(resultLink)
+                $(this).parent().addClass("selected").addClass("bg-info");
+                
+                $(this).parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
+            } else {
+                $("#details-container > img").attr("src", "");
+                $(this).parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
+            }
+        });
+    });
+
+    function ShowPhoneDetails(resultLink) {
+        $("#details-container > img").attr("src", $(resultLink).children("img").attr("src")).animate({
+            opacity: 1.0
+        }, 250);
+    }
+</script>
+
+<div class="row">
+    <h3>Filters</h3>
+
+    <div class="col-md-3">
+        <select class="form-control">
+            <option>--Manufacturer--</option>
+            @foreach (string manufacturerID in ViewBag.ManufacturerOptions)
+            {
+                <option value="@manufacturerID">@manufacturerID</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-control">
+            <option>--Release Year--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-control">
+            <option>--Operating System--</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-control">
+            <option>--Memory--</option>
+            @foreach (string memory in ViewBag.MemoryOptions)
+            {
+                <option value="@memory">@memory</option>
+            }
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div id="results-container" class="col-md-12">
+        <h2>@ViewData["Title"]</h2>
+        <hr />
+        @foreach (PhoneModel phoneModel in Model)
+        {
+            <div class="col-md-3 result">
+                <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
+                    <img src="@phoneModel.Phones.First().ImageURL" />
+                    <h4>@phoneModel.PhoneModelID</h4>
+                </a>
+            </div>
+        }
+    </div>
+    <div id="details-container" class="col-md-4" style="display: none;">
+        <h3>Details</h3>
+        <img src="" />
+        <p>
+            This text is for detailing this phone's summary and basic details.
+            This will be filled with text from the description of a phone.<br /><br />
+
+            This section is displayed when a user clicks on one of the images from the left,
+            or they can click the link to directly visit the product page.
+        </p>
+        <a href="javascript:void(0)">Go to product page, </a>
+    </div>
+</div>
+<div class="col-md-12">
+    <h3>Footer Items</h3>
+</div>

@@ -31,7 +31,7 @@ namespace SoftwareEngineeringProject.Models
         [Column(Order = 3, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
 
-        protected override string[] columnNames
+        protected override string[] ColumnNames
         {
             get
             {
@@ -39,7 +39,7 @@ namespace SoftwareEngineeringProject.Models
             }
         }
 
-        protected override object[] values
+        protected override object[] Values
         {
             get
             {
@@ -47,7 +47,7 @@ namespace SoftwareEngineeringProject.Models
             }
         }
 
-        protected override int keyCount
+        protected override int KeyCount
         {
             get
             {
