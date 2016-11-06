@@ -43,8 +43,8 @@
     $(document).ready(function() {
         $("#phone-carrier-select").change(function () {
             var carrierID = $(this).val();
-            $("option[data-carrier-id]").each(function () {
-                $(this).prop("disabled", $(this).data("carrier-id").split(",").indexOf(carrierID) == -1);
+            $("option[data-carrier-ids]").each(function () {
+                $(this).prop("disabled", $(this).data("carrier-ids").split(",").indexOf(carrierID) == -1);
             });
 
             $("#phone-payment-option-select, phone-memory-select, phone-colour-select").each(function () {
@@ -131,7 +131,7 @@
                     <td>$349.99</td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:void(0)">Amazon.ca </a></td>
+                    <td><a href="javascript:void(0)">Amazon.ca</a></td>
                     <td>1 year contract </td>
                     <td>$299.99 </td>
                 </tr>
