@@ -17,11 +17,17 @@ namespace SoftwareEngineeringProject.Data
         public DbSet<VendorPhone> VendorPhones { get; set; }
         public DbSet<VendorCrawlPage> VendorCrawlPages { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<SavedPhoneModel> SavedPhoneModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<ApplicationUser>(e =>
+            {
+                e.ToTable("AspNetUsers");
+                e.HasKey("Id");
+            });
             builder.Entity<Vendor>(e =>
             {
                 e.HasKey("VendorID");
@@ -61,6 +67,12 @@ namespace SoftwareEngineeringProject.Data
             {
                 e.HasKey("ManufacturerID");
                 e.HasMany(x => x.PhoneModels).WithOne(x => x.Manufacturer);
+            });
+            builder.Entity<SavedPhoneModel>(e =>
+            {
+                e.HasKey("UserID", "PhoneModelID");
+                e.HasOne(x => x.User);
+                e.HasOne(x => x.PhoneModel);
             });
         }
 

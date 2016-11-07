@@ -1,17 +1,23 @@
 ﻿@model IEnumerable<PhoneModel>
 
 @{
-    ViewData["Title"] = "Search Results for \"" + ViewData["Query"] + "\"";
+    string searchType = (string) ViewData["SearchType"];
+    string query = (string) ViewData["Query"];
+    int page = (int) ViewData["Page"];
+    int totalResults = (int) ViewData["TotalResults"];
+    int totalPages = ((totalResults - 1) >> 4) + 1;
+    ViewData["Title"] = (query != "" ? "Search Results for \"" + query + "\"" : "Browse Phones");
+    ViewData["SubTitle"] = string.Format("Showing {0} - {1} of {2} Results", ((page - 1) << 4) + 1, Math.Min(page << 4, totalResults), totalResults);
 }
 
 <link href="~/css/search.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#results-container > .result > a").click(function () {
+        $("#results-container > #results-page-container > .result > a").click(function () {
             var isSelected = $(this).parent().hasClass("selected");
-            var shouldTransitionDetails = !isSelected && $("#results-container > .result.selected").length > 0;
-            $("#results-container > .result.selected").removeClass("bg-info").removeClass("selected");
+            var shouldTransitionDetails = !isSelected && $("#results-container > #results-page-container > .result.selected").length > 0;
+            $("#results-container > #results-page-container > .result.selected").removeClass("bg-info").removeClass("selected");
             if (!isSelected) {
                 var resultLink = $(this);
                 console.log(shouldTransitionDetails);
@@ -19,21 +25,64 @@
                     $("#details-container > img").animate({
                         opacity: 0.0
                     }, 250, function () {
-                        ShowPhoneDetails(resultLink);
+                        showPhoneDetails(resultLink);
                     });
                 } else
-                    ShowPhoneDetails(resultLink)
+                    showPhoneDetails(resultLink)
                 $(this).parent().addClass("selected").addClass("bg-info");
                 
-                $(this).parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
+                $(this).parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
             } else {
                 $("#details-container > img").attr("src", "");
-                $(this).parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
+                $(this).parent().parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
+            }
+        });
+
+        $(".search-result-filter").change(function() {
+            var filterClass = null;
+            if ($(this).is("#manufacturer-filter"))
+                filterClass = "filter-manufacturer-id";
+            else if ($(this).is("#memory-filter"))
+                filterClass = "filter-memory-ids";
+
+            if (filterClass != null) {
+                console.log($(this).val());
+                if ($(this).val())
+                    $("#results-container").addClass(filterClass).data(filterClass, $(this).val());
+                else
+                    $("#results-container").removeClass(filterClass).data(filterClass, null);
+                updateResultVisibility();
             }
         });
     });
 
-    function ShowPhoneDetails(resultLink) {
+    function updateResultVisibility() {
+        var $resultsContainer = $("#results-container");
+        var classes = $resultsContainer[0].className.split(' ');
+        classes.shift();
+        $(".result").each(function () {
+            var isHidden = false;
+            for (var c = 0; c < classes.length; c++) {
+                var className = classes[c];
+                if (className.slice(-1) != "s")
+                    isHidden = $(this).data(className.slice(className.indexOf("-") + 1)) != $resultsContainer.data(className);
+                else
+                    isHidden = $(this).data(className.slice(className.indexOf("-") + 1)).split(",").indexOf($resultsContainer.data(className)) == -1;
+                
+                if (isHidden)
+                    break;
+            }
+
+            if (isHidden != ($(this).css("display") == "none")) {
+                if (isHidden)
+                    $(this).hide(250);
+                else
+                    $(this).show(250);
+            }
+        });
+    }
+
+    function showPhoneDetails(resultLink) {
         $("#details-container > img").attr("src", $(resultLink).children("img").attr("src")).animate({
             opacity: 1.0
         }, 250);
@@ -41,33 +90,33 @@
 </script>
 
 <div class="row">
-    <h3>Filters</h3>
-
+    <h2>Filters</h2>
+    <hr />
     <div class="col-md-3">
-        <select class="form-control">
-            <option>--Manufacturer--</option>
+        <select class="form-control search-result-filter" id="manufacturer-filter">
+            <option value="">--Manufacturer--</option>
             @foreach (string manufacturerID in ViewBag.ManufacturerOptions)
             {
-                <option value="@manufacturerID">@manufacturerID</option>
+                <option>@manufacturerID</option>
             }
         </select>
     </div>
     <div class="col-md-3">
-        <select class="form-control">
-            <option>--Release Year--</option>
+        <select class="form-control search-result-filter" id="release-year-filter">
+            <option value="">--Release Year--</option>
         </select>
     </div>
     <div class="col-md-3">
-        <select class="form-control">
-            <option>--Operating System--</option>
+        <select class="form-control search-result-filter" id="os-filter">
+            <option value="">--Operating System--</option>
         </select>
     </div>
     <div class="col-md-3">
-        <select class="form-control">
-            <option>--Memory--</option>
+        <select class="form-control search-result-filter" id="memory-filter">
+            <option value="">--Memory--</option>
             @foreach (string memory in ViewBag.MemoryOptions)
             {
-                <option value="@memory">@memory</option>
+                <option>@memory</option>
             }
         </select>
     </div>
@@ -76,18 +125,56 @@
     <div id="results-container" class="col-md-12">
         <h2>@ViewData["Title"]</h2>
         <hr />
-        @foreach (PhoneModel phoneModel in Model)
-        {
-            <div class="col-md-3 result">
-                <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
-                    <img src="@phoneModel.Phones.First().ImageURL" />
-                    <h4>@phoneModel.PhoneModelID</h4>
-                </a>
-            </div>
-        }
+        <div id="results-page-container">
+            <h4>@ViewData["SubTitle"]</h4>
+            @foreach (PhoneModel phoneModel in Model)
+            {
+                <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
+                    <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
+                        <img src="@phoneModel.Phones.First().ImageURL" />
+                        <h4>@phoneModel.PhoneModelID</h4>
+                    </a>
+                </div>
+            }
+        </div>
+        <hr />
+        <div id="results-page-controls-container">
+            @if (page > 1)
+            {
+                <a href="/Search/@query?SearchType=@searchType&Page=1"><<</a>
+                <a href="/Search/@query?SearchType=@searchType&Page=@(page - 1)"><</a>
+            }
+            else
+            {
+                <span><<</span>
+                <span><</span>
+            }
+            @for (int p = Math.Max(page - 5, 1); p <= Math.Min(page + 5, totalPages); p++)
+            {
+                @if (p != page)
+                {
+                    <a href="/Search/@query?SearchType=@searchType&Page=@p">@p</a>
+                }
+                else
+                {
+                    <span>@p</span>
+                }
+            }
+            @if (page < totalPages)
+            {
+                <a href="/Search/@query?SearchType=@searchType&Page=@(page + 1)">></a>
+                <a href="/Search/@query?SearchType=@searchType&Page=@totalPages">>></a>
+            }
+            else
+            {
+                <span>></span>
+                <span>>></span>
+            }
+        </div>
     </div>
     <div id="details-container" class="col-md-4" style="display: none;">
-        <h3>Details</h3>
+        <h2>Details</h2>
+        <hr />
         <img src="" />
         <p>
             This text is for detailing this phone's summary and basic details.
@@ -96,6 +183,6 @@
             This section is displayed when a user clicks on one of the images from the left,
             or they can click the link to directly visit the product page.
         </p>
-        <a href="javascript:void(0)">Go to product page, </a>
+        <a href="javascript:void(0)">Go to Phone Page</a>
     </div>
 </div>

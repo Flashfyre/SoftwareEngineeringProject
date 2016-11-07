@@ -248,6 +248,26 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.ToTable("PhoneModels");
                 });
 
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.SavedPhoneModel", b =>
+                {
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserID", "PhoneModelID");
+
+                    b.HasIndex("PhoneModelID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("SavedPhoneModels");
+                });
+
             modelBuilder.Entity("SoftwareEngineeringProject.Models.Vendor", b =>
                 {
                     b.Property<string>("VendorID")
@@ -366,6 +386,19 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.HasOne("SoftwareEngineeringProject.Models.Manufacturer", "Manufacturer")
                         .WithMany("PhoneModels")
                         .HasForeignKey("ManufacturerID");
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.SavedPhoneModel", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.PhoneModel", "PhoneModel")
+                        .WithMany()
+                        .HasForeignKey("PhoneModelID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SoftwareEngineeringProject.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorCrawlPage", b =>

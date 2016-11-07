@@ -63,6 +63,7 @@ namespace SoftwareEngineeringProject
             services.AddMvc();
 
             services.AddScoped<PhoneModelRepository, PhoneModelRepository>();
+            services.AddScoped<SavedPhoneModelRepository, SavedPhoneModelRepository>();
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();

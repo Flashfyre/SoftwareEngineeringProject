@@ -1,0 +1,33 @@
+﻿@model IEnumerable<SavedPhoneModel>
+
+
+@{
+    ViewData["Title"] = "My Wishlist";
+}
+
+<link href="~/css/wishlist.css" rel="stylesheet" type="text/css" />
+
+<div class="row">
+    <h2>My Wishlist</h2>
+    <hr />
+    @if (Model.Any())
+    {
+        @foreach (SavedPhoneModel savedPhoneModel in Model)
+        {
+            <div class="col-md-3 wishlist-phone">
+                <a href="/Phone/@savedPhoneModel.PhoneModelID">
+                    <img src="@savedPhoneModel.PhoneModel.Phones.First().ImageURL" />
+                    <h4>@savedPhoneModel.PhoneModelID</h4>
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>
+                Sorry, you currently have no items in your wishlist.
+            </p>
+        </div>
+    }
+</div>

@@ -1,0 +1,7 @@
+﻿.wishlist-phone {
+    text-align: center;
+}
+
+.wishlist-phone > a > img {
+    width: 100%;
+}
