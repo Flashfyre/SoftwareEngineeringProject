@@ -5,21 +5,35 @@
     -webkit-transition-duration: .5s;
        -o-transition-duration: .5s;
           transition-duration: .5s;
-    -webkit-transition-property: width, height;
-       -o-transition-property: width, height;
-          transition-property: width, height;
+    -webkit-transition-property: width, height, margin-left;
+       -o-transition-property: width, height, margin-left;
+          transition-property: width, height, margin-left;
+    overflow-x: hidden;
 }
 
-#results-container > #results-page-container {
+#results-container > #results-pages-container {
+     -webkit-transition-timing-function: ease;
+       -o-transition-timing-function: ease;
+          transition-timing-function: ease;
+    -webkit-transition-duration: .5s;
+       -o-transition-duration: .5s;
+          transition-duration: .5s;
+    -webkit-transition-property: margin-left;
+       -o-transition-property: margin-left;
+          transition-property: margin-left;
+}
+
+
+#results-container > #results-pages-container > .results-page-container {
     display: inline-block;
 }
 
-#results-container > #results-page-container > h4 {
+#results-container > h4 {
     text-align: center;
     color: gray;
 }
 
-#results-container > #results-page-container > .result {
+#results-container > #results-pages-container > .results-page-container > .result {
     text-align: center;
     border-radius: 1em;
     -webkit-transition-timing-function: ease;
@@ -33,11 +47,11 @@
           transition-property: background-color;
 }
 
-#results-container > #results-page-container > .result > a > img, #details-container > img {
+#results-container > #results-pages-container > .results-page-container > .result > a > img, #details-container > img {
     width: 100%;
 }
 
-#results-container > #results-page-container > .result > a > h4 {
+#results-container > #results-pages-container > .results-page-container > .result > a > h4 {
     display: table-cell;
     vertical-align: middle;
     height: 68px;
@@ -48,8 +62,13 @@
     font-size: large;
 }
 
-#results-container > #results-page-controls-container > a, #results-container > #results-page-controls-container > span {
+#results-container > #results-page-controls-container > a.page-link {
     padding: 0 0.25em;
+}
+
+#results-container > #results-page-controls-container > a.page-link.disabled {
+    text-decoration: none;
+    color: black;
 }
 
 #results-container, #details-container {

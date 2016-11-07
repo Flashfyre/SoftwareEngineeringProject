@@ -7,20 +7,29 @@
     int totalResults = (int) ViewData["TotalResults"];
     int totalPages = ((totalResults - 1) >> 4) + 1;
     ViewData["Title"] = (query != "" ? "Search Results for \"" + query + "\"" : "Browse Phones");
-    ViewData["SubTitle"] = string.Format("Showing {0} - {1} of {2} Results", ((page - 1) << 4) + 1, Math.Min(page << 4, totalResults), totalResults);
 }
 
 <link href="~/css/search.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $("#results-container > #results-page-container > .result > a").click(function () {
+    var currentPage = @page;
+    var totalResults = @totalResults;
+
+    $(document).ready(function () {
+        $("#results-container > #results-pages-container").css("width", (@totalPages * 100) + "%");
+        $("#results-container > #results-pages-container > .results-page-container").css({
+            "float": "left",
+            "width": (100 / @totalPages) + "%"
+        });
+
+        gotoPage(currentPage);
+
+        $("#results-container > #results-pages-container > .results-page-container > .result > a").click(function () {
             var isSelected = $(this).parent().hasClass("selected");
-            var shouldTransitionDetails = !isSelected && $("#results-container > #results-page-container > .result.selected").length > 0;
-            $("#results-container > #results-page-container > .result.selected").removeClass("bg-info").removeClass("selected");
+            var shouldTransitionDetails = !isSelected && $("#results-container > #results-pages-container > .results-page-container > .result.selected").length > 0;
+            $("#results-container > #results-pages-container > .results-page-container > .result.selected").removeClass("bg-info").removeClass("selected");
             if (!isSelected) {
                 var resultLink = $(this);
-                console.log(shouldTransitionDetails);
                 if (shouldTransitionDetails) {
                     $("#details-container > img").animate({
                         opacity: 0.0
@@ -30,11 +39,11 @@
                 } else
                     showPhoneDetails(resultLink)
                 $(this).parent().addClass("selected").addClass("bg-info");
-                
-                $(this).parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
+                console.log($(this).parent().parent().parent().parent());
+                $(this).parent().parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
             } else {
                 $("#details-container > img").attr("src", "");
-                $(this).parent().parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
+                $(this).parent().parent().parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
             }
         });
 
@@ -46,7 +55,6 @@
                 filterClass = "filter-memory-ids";
 
             if (filterClass != null) {
-                console.log($(this).val());
                 if ($(this).val())
                     $("#results-container").addClass(filterClass).data(filterClass, $(this).val());
                 else
@@ -54,10 +62,34 @@
                 updateResultVisibility();
             }
         });
+
+        $("#results-page-controls-container > a.page-link").click(function() {
+            if (!$(this).hasClass("disabled")) {
+                gotoPage($(this).attr("data-page-id"));
+                updateResultsText();
+            }
+        });
+
+        updateResultsText();
     });
+
+    function gotoPage(page) {
+        currentPage = page;
+        console.log(page);
+        $("#results-container > #results-pages-container").css("margin-left", -(($(".results-page-container:first").width() * (page - 1))) + "px");
+        $("#results-container > #results-page-controls-container > a.disabled").removeClass("disabled");
+        $("#results-container > #results-page-controls-container > a.page-link-prev").attr("data-page-id", Math.max(page - 1, 1));
+        $("#results-container > #results-page-controls-container > a.page-link-next").attr("data-page-id", Math.min(page + 1, @totalPages));
+        $("#results-container > #results-page-controls-container > a[data-page-id=" + page + "]").addClass("disabled");
+    }
+
+    function updateResultsText() {
+        $("#results-text").html(@Html.Raw("'Showing ' + (((currentPage - 1) << 4) + 1) + ' - ' + Math.min(currentPage << 4, totalResults) + ' of ' + totalResults + ' Result' + (totalResults != 1 ? 's' : '')"));
+    }
 
     function updateResultVisibility() {
         var $resultsContainer = $("#results-container");
+        var visibleCount = 0;
         var classes = $resultsContainer[0].className.split(' ');
         classes.shift();
         $(".result").each(function () {
@@ -68,9 +100,14 @@
                     isHidden = $(this).data(className.slice(className.indexOf("-") + 1)) != $resultsContainer.data(className);
                 else
                     isHidden = $(this).data(className.slice(className.indexOf("-") + 1)).split(",").indexOf($resultsContainer.data(className)) == -1;
-                
+
                 if (isHidden)
                     break;
+            }
+
+            if (!isHidden) {
+                visibleCount++;
+                $(this).detach().appendTo($(".results-page-container[data-page-id=" + ((visibleCount >> 4) + 1) + "]"));
             }
 
             if (isHidden != ($(this).css("display") == "none")) {
@@ -80,6 +117,15 @@
                     $(this).show(250);
             }
         });
+
+        var newLastPage = ((visibleCount >> 4) + 1);
+
+        totalResults = visibleCount;
+
+        if (currentPage > newLastPage)
+            gotoPage(newLastPage);
+
+        updateResultsText();
     }
 
     function showPhoneDetails(resultLink) {
@@ -125,51 +171,32 @@
     <div id="results-container" class="col-md-12">
         <h2>@ViewData["Title"]</h2>
         <hr />
-        <div id="results-page-container">
-            <h4>@ViewData["SubTitle"]</h4>
-            @foreach (PhoneModel phoneModel in Model)
-            {
-                <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
-                    <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
-                        <img src="@phoneModel.Phones.First().ImageURL" />
-                        <h4>@phoneModel.PhoneModelID</h4>
-                    </a>
+        <h4 id="results-text"></h4>
+        <div id="results-pages-container">
+            @for (int pg = 1; pg <= totalPages; pg++) {
+                <div class="results-page-container" data-page-id="@pg">
+                    @foreach (PhoneModel phoneModel in Model.Skip((pg - 1) << 4).Take(Math.Min(totalResults - ((pg - 1) << 4), 16)))
+                    {
+                        <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
+                            <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
+                                <img src="@phoneModel.Phones.First().ImageURL" />
+                                <h4>@phoneModel.PhoneModelID</h4>
+                            </a>
+                        </div>
+                    }
                 </div>
             }
-        </div>
+         </div>
         <hr />
         <div id="results-page-controls-container">
-            @if (page > 1)
-            {
-                <a href="/Search/@query?SearchType=@searchType&Page=1"><<</a>
-                <a href="/Search/@query?SearchType=@searchType&Page=@(page - 1)"><</a>
-            }
-            else
-            {
-                <span><<</span>
-                <span><</span>
-            }
+            <a href="javascript:void(0)" data-page-id="1" class="page-link@{ @Html.Raw(page > 1 ? "" : " disabled"); }"><<</a>
+            <a href="javascript:void(0)" data-page-id="@(Math.Max(page - 1, 1))" class="page-link page-link-prev@{ @Html.Raw(page > 1 ? "" : " disabled"); }"><</a>
             @for (int p = Math.Max(page - 5, 1); p <= Math.Min(page + 5, totalPages); p++)
             {
-                @if (p != page)
-                {
-                    <a href="/Search/@query?SearchType=@searchType&Page=@p">@p</a>
-                }
-                else
-                {
-                    <span>@p</span>
-                }
+                <a href="javascript:void(0)" data-page-id="@p" class="page-link page-link-number@{ @Html.Raw(p != page ? "" : " disabled"); }">@p</a>
             }
-            @if (page < totalPages)
-            {
-                <a href="/Search/@query?SearchType=@searchType&Page=@(page + 1)">></a>
-                <a href="/Search/@query?SearchType=@searchType&Page=@totalPages">>></a>
-            }
-            else
-            {
-                <span>></span>
-                <span>>></span>
-            }
+            <a href="javascript:void(0)" data-page-id="@(Math.Min(page + 1, totalPages))" class="page-link page-link-next@{ @Html.Raw(page < totalPages ? "" : " disabled"); }">></a>
+            <a href="javascript:void(0)" data-page-id="@totalPages" class="page-link@{ @Html.Raw(page < totalPages ? "" : " disabled"); }">>></a>
         </div>
     </div>
     <div id="details-container" class="col-md-4" style="display: none;">

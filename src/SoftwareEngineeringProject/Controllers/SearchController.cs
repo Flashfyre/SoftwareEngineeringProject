@@ -23,8 +23,6 @@ namespace SoftwareEngineeringProject.Controllers
         [HttpGet]
         public IActionResult Index(string SearchType = "Models", string Query = "", int Page = 1)
         {
-            int totalResults = 0;
-
             ViewData["SearchType"] = SearchType;
             ViewData["Query"] = Query;
             ViewData["Page"] = Page;
@@ -36,19 +34,7 @@ namespace SoftwareEngineeringProject.Controllers
             if (Query != "")
                 results = results.Where(pm => pm.PhoneModelID.ToLower().Contains(Query) || pm.ManufacturerID.ToLower().Contains(Query));
 
-            if (results.Any())
-            {
-                totalResults = results.Count();
-                if (totalResults > (Page - 1) << 4)
-                {
-                    results = results.Skip((Page - 1) << 4);
-                    results = results.Take(Math.Min(16, results.Count()));
-                }
-                else
-                    results = new List<PhoneModel>();
-            }
-
-            ViewData["TotalResults"] = totalResults;
+            ViewData["TotalResults"] = results.Count();
             ViewBag.ManufacturerOptions = results.Select(pm => pm.ManufacturerID).Distinct().OrderBy(m => m);
             ViewBag.MemoryOptions = results.SelectMany(pm => pm.Phones.Select(p => p.Memory).Distinct()).Distinct().OrderBy(m => FormatHelper.PadNumbers(m));
 

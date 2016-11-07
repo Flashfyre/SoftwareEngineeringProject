@@ -7,7 +7,7 @@
     ViewData["Title"] = Model.PhoneModelID + " - Details";
 
     ApplicationUser user = await userManager.GetUserAsync(Context.User);
-    bool isPhoneInWishlist = savedPhoneModels.GetAllForUserID(user.Id).Any(spm => spm.PhoneModelID == Model.PhoneModelID);
+    bool isPhoneInWishlist = user != null && savedPhoneModels.GetAllForUserID(user.Id).Any(spm => spm.PhoneModelID == Model.PhoneModelID);
     IEnumerable<VendorPhone> vendorPhones = Model.Phones.SelectMany(p => p.VendorPhones);
     IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct();
     IEnumerable<string> vendorIDOptions = vendorPhones.Select(vp => vp.VendorID).Distinct();
@@ -58,7 +58,7 @@
             });
         });
 
-        $(".btn-wishlist").click(function () {
+        $(".btn-wishlist:not(.disabled)").click(function () {
             var isUndo = $(this).is(".btn-wishlist.undo"); // Whether the button is removing from the wishlist
 
             $(".btn-wishlist").addClass("disabled"); // Disable the wishlist button
@@ -96,11 +96,11 @@
         <img style="width:100%; height:auto;" src="@Model.Phones.First().ImageURL" />
         @if (!isPhoneInWishlist)
         {
-            <button class="btn btn-success btn-block btn-wishlist">Add to My Wishlist</button>
+            <button class="btn btn-success btn-block btn-wishlist@{ @Html.Raw(user == null ? " disabled" : ""); }">Add to My Wishlist</button>
         }
         else
         {
-            <button class="btn btn-danger btn-block btn-wishlist undo">Remove from My Wishlist</button>
+            <button class="btn btn-danger btn-block btn-wishlist undo@{ @Html.Raw(user == null ? " disabled" : ""); }">Remove from My Wishlist</button>
         }
         @Html.AntiForgeryToken()
     </div>
