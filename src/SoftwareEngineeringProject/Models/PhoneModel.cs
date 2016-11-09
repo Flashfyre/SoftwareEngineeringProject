@@ -16,7 +16,9 @@ namespace SoftwareEngineeringProject.Models
         public string ManufacturerID { get; set; }
         [ForeignKey("ManufacturerID")]
         public Manufacturer Manufacturer { get; set; }
-        [Column(Order = 2, TypeName = "datetime2")]
+        [Column(Order = 2, TypeName = "varchar(64)")]
+        public string OperatingSystem { get; set; }
+        [Column(Order = 3, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
         public ICollection<Phone> Phones { get; set; }
         [NotMapped]
@@ -24,7 +26,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new string[] { nameof(PhoneModelID), nameof(ManufacturerID), nameof(LastUpdatedDate) };
+                return new string[] { nameof(PhoneModelID), nameof(ManufacturerID), nameof(OperatingSystem), nameof(LastUpdatedDate) };
             }
         }
         [NotMapped]
@@ -32,7 +34,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new object[] { PhoneModelID, ManufacturerID, LastUpdatedDate };
+                return new object[] { PhoneModelID, ManufacturerID, OperatingSystem, LastUpdatedDate };
             }
         }
     }

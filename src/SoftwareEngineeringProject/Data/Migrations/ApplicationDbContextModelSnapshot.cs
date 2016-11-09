@@ -209,13 +209,16 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.Property<string>("Colour")
                         .HasColumnType("varchar(16)");
 
-                    b.Property<bool>("IsUnlocked")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Memory")
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("PaymentType")
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("Price")
                         .HasColumnType("varchar(16)");
 
                     b.Property<DateTime?>("ReleaseDate")
@@ -239,6 +242,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ManufacturerID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("OperatingSystem")
                         .HasColumnType("varchar(64)");
 
                     b.HasKey("PhoneModelID");
@@ -315,6 +321,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
                     b.Property<string>("CarrierID")
                         .HasColumnType("varchar(64)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<DateTime?>("LastUpdatedDate")
                         .HasColumnType("datetime2");

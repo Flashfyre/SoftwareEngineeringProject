@@ -28,18 +28,20 @@ namespace SoftwareEngineeringProject.Models
         public Phone Phone { get; set; }
         [Column(Order = 4, TypeName = "varchar(2083)")]
         public string URL { get; set; }
-        [Column(Order = 5, TypeName = "datetime2")]
+        [Column(Order = 5, TypeName = "nvarchar(4000)")]
+        public string Description { get; set; }
+        [Column(Order = 6, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
         [NotMapped]
         protected override string[] ColumnNames { get
             {
-                return new string[] { nameof(VendorID), nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(CarrierID), nameof(URL), nameof(LastUpdatedDate) };
+                return new string[] { nameof(VendorID), nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(CarrierID), nameof(URL), nameof(Description), nameof(LastUpdatedDate) };
             }
         }
         [NotMapped]
         protected override object[] Values { get
             {
-                return new object[] { VendorID, PhoneModelID, PhoneModelVariantID, CarrierID, URL, LastUpdatedDate };
+                return new object[] { VendorID, PhoneModelID, PhoneModelVariantID, CarrierID, URL, Description, LastUpdatedDate };
             }
         }
         [NotMapped]

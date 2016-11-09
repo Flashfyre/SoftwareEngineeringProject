@@ -155,6 +155,10 @@
     <div class="col-md-3">
         <select class="form-control search-result-filter" id="os-filter">
             <option value="">--Operating System--</option>
+            @foreach (string os in ViewBag.OSOptions)
+            {
+                <option>@os</option>
+            }
         </select>
     </div>
     <div class="col-md-3">

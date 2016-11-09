@@ -11,17 +11,17 @@
     IEnumerable<VendorPhone> vendorPhones = Model.Phones.SelectMany(p => p.VendorPhones);
     IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct();
     IEnumerable<string> vendorIDOptions = vendorPhones.Select(vp => vp.VendorID).Distinct();
-    Dictionary<bool, List<string>> carrierPaymentOptions = new Dictionary<bool, List<string>>();
+    Dictionary<string, List<string>> carrierPaymentOptions = new Dictionary<string, List<string>>();
     Dictionary<string, List<string>> carrierMemoryOptions = new Dictionary<string, List<string>>();
     Dictionary<string, List<string>> carrierColourOptions = new Dictionary<string, List<string>>();
 
     foreach (VendorPhone vp in vendorPhones)
     {
-        if (!carrierPaymentOptions.ContainsKey(vp.Phone.IsUnlocked)) {
-            carrierPaymentOptions.Add(vp.Phone.IsUnlocked, new List<string>() { vp.CarrierID });
-        } else if (!carrierPaymentOptions.Keys.Contains(vp.Phone.IsUnlocked))
+        if (!carrierPaymentOptions.ContainsKey(vp.Phone.PaymentType)) {
+            carrierPaymentOptions.Add(vp.Phone.PaymentType, new List<string>() { vp.CarrierID });
+        } else if (!carrierPaymentOptions.Keys.Contains(vp.Phone.PaymentType))
         {
-            carrierPaymentOptions[vp.Phone.IsUnlocked].Add(vp.CarrierID);
+            carrierPaymentOptions[vp.Phone.PaymentType].Add(vp.CarrierID);
         }
         if (!carrierMemoryOptions.ContainsKey(vp.Phone.Memory))
         {
@@ -125,9 +125,9 @@
                 Payment Option
                 <select id="phone-payment-option-select" class="form-control">
                     <option>--Payment Option--</option>
-                    @foreach (bool payment in carrierPaymentOptions.Keys.OrderBy(p => p))
+                    @foreach (string payment in carrierPaymentOptions.Keys.OrderBy(p => p))
                     {
-                        <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment" disabled>@(payment ? "Unlocked" : "Contract")</option>
+                        <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment" disabled>@payment</option>
                     }
                 </select>
             </span>

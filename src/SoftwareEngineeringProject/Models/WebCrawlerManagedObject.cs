@@ -68,7 +68,8 @@ namespace SoftwareEngineeringProject.Models
             for (int v = 0; v < Values.Length; v++)
             {
                 object value = Values[v];
-                commandText += (v > 0 ? ", " : "") + ((value is int || value is byte) ? value.ToString() : value is DateTime? ? "CAST('" + value.ToString() + "' AS DATETIME2)" : "'" + value.ToString() + "'");
+                commandText += (v > 0 ? ", " : "") + (value != null ? ((value is int || value is byte) ? value.ToString() : value is DateTime? ? "CAST('" + value.ToString() + "' AS DATETIME2)"
+                    : "'" + value.ToString() + "'") : "NULL");
             }
 
             commandText += ")";
@@ -91,10 +92,26 @@ namespace SoftwareEngineeringProject.Models
 
             conn.Open();
 
-            SqlCommand command = new SqlCommand("UPDATE " + tableName + " SET LastUpdatedDate = CAST('" + LastUpdatedDate.Value.ToString() + "' AS DATETIME2)" + IdWhereClause, conn);
+            SqlCommand command;
+            string commandText = "UPDATE " + tableName + " SET";
+
+            for (int v = KeyCount; v < Values.Length; v++)
+            {
+                object value = Values[v];
+                commandText += (v > KeyCount ? ", " : "") + " " + ColumnNames[v] + " = " + (value != null ? ((value is int || value is byte) ? value.ToString() : value is DateTime? ? "CAST('" + value.ToString()
+                    + "' AS DATETIME2)" : "'" + value.ToString() + "'") : "NULL");
+            }
+
+            commandText += IdWhereClause;
+
+            command = new SqlCommand(commandText, conn);
             command.ExecuteNonQuery();
 
             conn.Close();
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("{0} was successfully updated.", ToString());
+            Console.ForegroundColor = ConsoleColor.Gray;
 
             return this;
         }
@@ -108,7 +125,7 @@ namespace SoftwareEngineeringProject.Models
 
             conn.Close();
 
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("{0} was successfully deleted from the database.", ToString());
             Console.ForegroundColor = ConsoleColor.Gray;
 

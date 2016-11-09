@@ -36,6 +36,7 @@ namespace SoftwareEngineeringProject.Controllers
 
             ViewData["TotalResults"] = results.Count();
             ViewBag.ManufacturerOptions = results.Select(pm => pm.ManufacturerID).Distinct().OrderBy(m => m);
+            ViewBag.OSOptions = results.Select(pm => pm.OperatingSystem).Distinct().OrderBy(os => os);
             ViewBag.MemoryOptions = results.SelectMany(pm => pm.Phones.Select(p => p.Memory).Distinct()).Distinct().OrderBy(m => FormatHelper.PadNumbers(m));
 
             return View(results);
