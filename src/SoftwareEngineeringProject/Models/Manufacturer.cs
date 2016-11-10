@@ -11,5 +11,24 @@ namespace SoftwareEngineeringProject.Models
         [Column(Order = 0, TypeName = "varchar(64)")]
         public string ManufacturerID { get; set; }
         public ICollection<PhoneModel> PhoneModels { get; set; }
+
+        public static readonly string[] ManufacturerIDs = new string[]
+        {
+            "Alcatel",
+            "Apple",
+            "Blackberry",
+            "Doro",
+            "Google",
+            "Huawei",
+            "HTC",
+            "Kyocera",
+            "LG",
+            "Microsoft",
+            "Motorola",
+            "Nokia",
+            "Samsung",
+            "Sony",
+            "ZTE"
+        };
     }
 }

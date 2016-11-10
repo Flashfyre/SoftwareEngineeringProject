@@ -49,7 +49,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
                 {
                     PhoneModelID = table.Column<string>(type: "varchar(64)", nullable: false),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ManufacturerID = table.Column<string>(type: "varchar(64)", nullable: true)
+                    ManufacturerID = table.Column<string>(type: "varchar(64)", nullable: true),
+                    OperatingSystem = table.Column<string>(type: "varchar(64)", nullable: true),
+                    ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,27 +90,43 @@ namespace SoftwareEngineeringProject.Data.Migrations
                 {
                     PhoneModelID = table.Column<string>(type: "varchar(64)", nullable: false),
                     PhoneModelVariantID = table.Column<byte>(type: "tinyint", nullable: false),
-                    CarrierID = table.Column<string>(type: "varchar(64)", nullable: false),
-                    Colour = table.Column<string>(type: "varchar(16)", nullable: true),
-                    IsUnlocked = table.Column<bool>(type: "bit", nullable: false),
+                    Colour = table.Column<string>(type: "varchar(64)", nullable: true),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Memory = table.Column<string>(type: "varchar(16)", nullable: true),
-                    ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Memory = table.Column<string>(type: "varchar(16)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Phones", x => new { x.PhoneModelID, x.PhoneModelVariantID, x.CarrierID });
-                    table.ForeignKey(
-                        name: "FK_Phones_Carriers_CarrierID",
-                        column: x => x.CarrierID,
-                        principalTable: "Carriers",
-                        principalColumn: "CarrierID",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Phones", x => new { x.PhoneModelID, x.PhoneModelVariantID });
                     table.ForeignKey(
                         name: "FK_Phones_PhoneModels_PhoneModelID",
                         column: x => x.PhoneModelID,
                         principalTable: "PhoneModels",
                         principalColumn: "PhoneModelID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SavedPhoneModels",
+                columns: table => new
+                {
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PhoneModelID = table.Column<string>(type: "varchar(64)", nullable: false),
+                    AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SavedPhoneModels", x => new { x.UserID, x.PhoneModelID });
+                    table.ForeignKey(
+                        name: "FK_SavedPhoneModels_PhoneModels_PhoneModelID",
+                        column: x => x.PhoneModelID,
+                        principalTable: "PhoneModels",
+                        principalColumn: "PhoneModelID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SavedPhoneModels_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -119,13 +137,23 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     VendorID = table.Column<string>(type: "varchar(64)", nullable: false),
                     PhoneModelID = table.Column<string>(type: "varchar(64)", nullable: false),
                     PhoneModelVariantID = table.Column<byte>(type: "tinyint", nullable: false),
-                    CarrierID = table.Column<string>(type: "varchar(64)", nullable: false),
+                    PhoneVendorPhoneID = table.Column<byte>(type: "tinyint", nullable: false),
+                    CarrierID = table.Column<string>(type: "varchar(64)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(4000)", nullable: true),
                     LastUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PaymentType = table.Column<string>(type: "varchar(16)", nullable: true),
+                    Price = table.Column<string>(type: "varchar(16)", nullable: true),
                     URL = table.Column<string>(type: "varchar(2083)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VendorPhones", x => new { x.VendorID, x.PhoneModelID, x.PhoneModelVariantID, x.CarrierID });
+                    table.PrimaryKey("PK_VendorPhones", x => new { x.VendorID, x.PhoneModelID, x.PhoneModelVariantID, x.PhoneVendorPhoneID });
+                    table.ForeignKey(
+                        name: "FK_VendorPhones_Carriers_CarrierID",
+                        column: x => x.CarrierID,
+                        principalTable: "Carriers",
+                        principalColumn: "CarrierID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VendorPhones_Vendors_VendorID",
                         column: x => x.VendorID,
@@ -133,17 +161,12 @@ namespace SoftwareEngineeringProject.Data.Migrations
                         principalColumn: "VendorID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VendorPhones_Phones_PhoneModelID_PhoneModelVariantID_CarrierID",
-                        columns: x => new { x.PhoneModelID, x.PhoneModelVariantID, x.CarrierID },
+                        name: "FK_VendorPhones_Phones_PhoneModelID_PhoneModelVariantID",
+                        columns: x => new { x.PhoneModelID, x.PhoneModelVariantID },
                         principalTable: "Phones",
-                        principalColumns: new[] { "PhoneModelID", "PhoneModelVariantID", "CarrierID" },
+                        principalColumns: new[] { "PhoneModelID", "PhoneModelVariantID" },
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Phones_CarrierID",
-                table: "Phones",
-                column: "CarrierID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Phones_PhoneModelID",
@@ -156,9 +179,24 @@ namespace SoftwareEngineeringProject.Data.Migrations
                 column: "ManufacturerID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SavedPhoneModels_PhoneModelID",
+                table: "SavedPhoneModels",
+                column: "PhoneModelID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedPhoneModels_UserID",
+                table: "SavedPhoneModels",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VendorCrawlPages_VendorID",
                 table: "VendorCrawlPages",
                 column: "VendorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VendorPhones_CarrierID",
+                table: "VendorPhones",
+                column: "CarrierID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendorPhones_VendorID",
@@ -166,13 +204,16 @@ namespace SoftwareEngineeringProject.Data.Migrations
                 column: "VendorID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VendorPhones_PhoneModelID_PhoneModelVariantID_CarrierID",
+                name: "IX_VendorPhones_PhoneModelID_PhoneModelVariantID",
                 table: "VendorPhones",
-                columns: new[] { "PhoneModelID", "PhoneModelVariantID", "CarrierID" });
+                columns: new[] { "PhoneModelID", "PhoneModelVariantID" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "SavedPhoneModels");
+
             migrationBuilder.DropTable(
                 name: "VendorCrawlPages");
 
@@ -180,13 +221,13 @@ namespace SoftwareEngineeringProject.Data.Migrations
                 name: "VendorPhones");
 
             migrationBuilder.DropTable(
+                name: "Carriers");
+
+            migrationBuilder.DropTable(
                 name: "Vendors");
 
             migrationBuilder.DropTable(
                 name: "Phones");
-
-            migrationBuilder.DropTable(
-                name: "Carriers");
 
             migrationBuilder.DropTable(
                 name: "PhoneModels");

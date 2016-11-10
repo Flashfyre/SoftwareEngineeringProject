@@ -17,54 +17,36 @@ namespace SoftwareEngineeringProject.Data
                 List<VendorCrawlPage> vendorCrawlPages = context.VendorCrawlPages.ToList();
                 IEnumerable<string> vendorCrawlPageURLs = vendorCrawlPages.Select(vcp => vcp.URL);
 
-                List<Vendor> newVendors = new List<Vendor>()
+                foreach (string vendorID in Vendor.VendorIDs)
                 {
-                    new Vendor()
+                    if (!vendorIDs.Any(vid => vid == vendorID))
                     {
-                        VendorID = "Bell"
+                        Vendor newVendor = new Vendor()
+                        {
+                            VendorID = vendorID
+                        };
+
+                        context.Vendors.Add(newVendor);
+                        vendors.Add(newVendor);
                     }
-                };
-
-                newVendors.RemoveAll(v => vendorIDs.Contains(v.VendorID));
-
-                foreach (Vendor v in newVendors)
-                {
-                    context.Vendors.Add(v);
-                    vendors.Add(v);
                 }
 
                 List<VendorCrawlPage> newVendorCrawlPages = new List<VendorCrawlPage>() {
-                    new VendorCrawlPage("Bell", "http://www.bell.ca/Mobility/Smartphones_and_mobile_internet_devices")
+                    new VendorCrawlPage("Bell", "http://www.bell.ca/Mobility/Smartphones_and_mobile_internet_devices"),
+                    new VendorCrawlPage("Best Buy", "http://www.bestbuy.ca/en-CA/category/cell-phones-plans/696304.aspx?type=product&page=1&sortBy=relevance&sortDir=desc&pageSize=100")
                 };
 
                 newVendorCrawlPages.RemoveAll(vcp => vendorCrawlPageURLs.Contains(vcp.URL));
 
                 foreach (VendorCrawlPage vcp in newVendorCrawlPages)
                 {
-                    vcp.VendorCrawlPageID = (byte)((vendorCrawlPages.Any() ? vendorCrawlPages.Max(cp => cp.VendorCrawlPageID) : 0) + 1);
+                    vcp.VendorCrawlPageID = (byte)((vendorCrawlPages.Any(cp => cp.VendorID == vcp.VendorID) ? vendorCrawlPages.Where(cp => cp.VendorID == vcp.VendorID).Max(cp => cp.VendorCrawlPageID) : 0) + 1);
                     context.VendorCrawlPages.Add(vcp);
                 }
 
                 List<Manufacturer> manufacturers = context.Manufacturers.ToList();
-                List<string> manufacturerNames = new List<string>() {
-                    "Alcatel",
-                    "Apple",
-                    "Blackberry",
-                    "Doro",
-                    "Google",
-                    "Huawei",
-                    "HTC",
-                    "Kyocera",
-                    "LG",
-                    "Microsoft",
-                    "Motorola",
-                    "Nokia",
-                    "Samsung",
-                    "Sony",
-                    "ZTE"
-                };
 
-                foreach (string manufacturerName in manufacturerNames.Except(manufacturers.Select(m => m.ManufacturerID)))
+                foreach (string manufacturerName in Manufacturer.ManufacturerIDs.Except(manufacturers.Select(m => m.ManufacturerID)))
                 {
                     context.Manufacturers.Add(new Manufacturer()
                     {

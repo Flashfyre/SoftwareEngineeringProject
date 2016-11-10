@@ -17,11 +17,11 @@
 
     foreach (VendorPhone vp in vendorPhones)
     {
-        if (!carrierPaymentOptions.ContainsKey(vp.Phone.PaymentType)) {
-            carrierPaymentOptions.Add(vp.Phone.PaymentType, new List<string>() { vp.CarrierID });
-        } else if (!carrierPaymentOptions.Keys.Contains(vp.Phone.PaymentType))
+        if (!carrierPaymentOptions.ContainsKey(vp.PaymentType)) {
+            carrierPaymentOptions.Add(vp.PaymentType, new List<string>() { vp.CarrierID });
+        } else if (!carrierPaymentOptions.Keys.Contains(vp.PaymentType))
         {
-            carrierPaymentOptions[vp.Phone.PaymentType].Add(vp.CarrierID);
+            carrierPaymentOptions[vp.PaymentType].Add(vp.CarrierID);
         }
         if (!carrierMemoryOptions.ContainsKey(vp.Phone.Memory))
         {
@@ -93,7 +93,7 @@
     <h2>@Model.PhoneModelID</h2>
     <hr />
     <div id="phone-image-container" class="col-md-3">
-        <img style="width:100%; height:auto;" src="@Model.Phones.First().ImageURL" />
+        <img style="width:100%; height:auto;" src="@Model.Phones.First().GetImageURL()" />
         @if (!isPhoneInWishlist)
         {
             <button class="btn btn-success btn-block btn-wishlist@{ @Html.Raw(user == null ? " disabled" : ""); }">Add to My Wishlist</button>

@@ -183,7 +183,7 @@
                     {
                         <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
                             <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
-                                <img src="@phoneModel.Phones.First().ImageURL" />
+                                <img src="@phoneModel.Phones.First().GetImageURL()" />
                                 <h4>@phoneModel.PhoneModelID</h4>
                             </a>
                         </div>

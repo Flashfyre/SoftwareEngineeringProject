@@ -19,6 +19,8 @@ namespace SoftwareEngineeringProject.Models
         [Column(Order = 2, TypeName = "varchar(64)")]
         public string OperatingSystem { get; set; }
         [Column(Order = 3, TypeName = "datetime2")]
+        public DateTime? ReleaseDate { get; set; }
+        [Column(Order = 4, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
         public ICollection<Phone> Phones { get; set; }
         [NotMapped]
@@ -26,7 +28,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new string[] { nameof(PhoneModelID), nameof(ManufacturerID), nameof(OperatingSystem), nameof(LastUpdatedDate) };
+                return new string[] { nameof(PhoneModelID), nameof(ManufacturerID), nameof(OperatingSystem), nameof(ReleaseDate), nameof(LastUpdatedDate) };
             }
         }
         [NotMapped]
@@ -34,7 +36,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new object[] { PhoneModelID, ManufacturerID, OperatingSystem, LastUpdatedDate };
+                return new object[] { PhoneModelID, ManufacturerID, OperatingSystem, ReleaseDate, LastUpdatedDate };
             }
         }
     }

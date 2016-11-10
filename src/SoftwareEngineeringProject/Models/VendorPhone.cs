@@ -21,27 +21,36 @@ namespace SoftwareEngineeringProject.Models
         [Key]
         [Column(Order = 2, TypeName = "tinyint")]
         public byte PhoneModelVariantID { get; set; }
-        [Key]
-        [Column(Order = 3, TypeName = "varchar(64)")]
-        public string CarrierID { get; set; }
-        [ForeignKey("PhoneModelID,PhoneModelVariantID,CarrierID")]
+        [ForeignKey("PhoneModelID,PhoneModelVariantID")]
         public Phone Phone { get; set; }
-        [Column(Order = 4, TypeName = "varchar(2083)")]
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [Column(Order = 3, TypeName = "tinyint")]
+        public byte PhoneVendorPhoneID { get; set; }
+        [Column(Order = 4, TypeName = "varchar(64)")]
+        public string CarrierID { get; set; }
+        [ForeignKey("CarrierID")]
+        public Carrier Carrier { get; set; }
+        [Column(Order = 5, TypeName = "varchar(32)")]
+        public string PaymentType { get; set; }
+        [Column(Order = 6, TypeName = "varchar(16)")]
+        public string Price { get; set; }
+        [Column(Order = 7, TypeName = "varchar(2083)")]
         public string URL { get; set; }
-        [Column(Order = 5, TypeName = "nvarchar(4000)")]
+        [Column(Order = 8, TypeName = "nvarchar(4000)")]
         public string Description { get; set; }
-        [Column(Order = 6, TypeName = "datetime2")]
+        [Column(Order = 9, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
         [NotMapped]
         protected override string[] ColumnNames { get
             {
-                return new string[] { nameof(VendorID), nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(CarrierID), nameof(URL), nameof(Description), nameof(LastUpdatedDate) };
+                return new string[] { nameof(VendorID), nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(PhoneVendorPhoneID), nameof(CarrierID), nameof(PaymentType), nameof(Price), nameof(URL), nameof(Description), nameof(LastUpdatedDate) };
             }
         }
         [NotMapped]
         protected override object[] Values { get
             {
-                return new object[] { VendorID, PhoneModelID, PhoneModelVariantID, CarrierID, URL, Description, LastUpdatedDate };
+                return new object[] { VendorID, PhoneModelID, PhoneModelVariantID, PhoneVendorPhoneID, CarrierID, PaymentType, Price, URL, Description, LastUpdatedDate };
             }
         }
         [NotMapped]
@@ -100,6 +109,11 @@ namespace SoftwareEngineeringProject.Models
             }
 
             return initialURL;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1}/{2}/{3}/{4}/{5}", GetType().Name, PhoneModelID, PhoneModelVariantID, PhoneVendorPhoneID, CarrierID, PaymentType);
         }
     }
 }

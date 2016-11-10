@@ -14,7 +14,7 @@ namespace SoftwareEngineeringProject.Models
         public string CarrierID { get; set; }
         [Column(Order = 1, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
-        public ICollection<Phone> Phones { get; set; }
+        public ICollection<VendorPhone> VendorPhones { get; set; }
         [NotMapped]
         protected override string[] ColumnNames
         {

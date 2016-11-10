@@ -203,11 +203,8 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.Property<byte>("PhoneModelVariantID")
                         .HasColumnType("tinyint");
 
-                    b.Property<string>("CarrierID")
-                        .HasColumnType("varchar(64)");
-
                     b.Property<string>("Colour")
-                        .HasColumnType("varchar(16)");
+                        .HasColumnType("varchar(64)");
 
                     b.Property<DateTime?>("LastUpdatedDate")
                         .HasColumnType("datetime2");
@@ -215,18 +212,7 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.Property<string>("Memory")
                         .HasColumnType("varchar(16)");
 
-                    b.Property<string>("PaymentType")
-                        .HasColumnType("varchar(32)");
-
-                    b.Property<string>("Price")
-                        .HasColumnType("varchar(16)");
-
-                    b.Property<DateTime?>("ReleaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PhoneModelID", "PhoneModelVariantID", "CarrierID");
-
-                    b.HasIndex("CarrierID");
+                    b.HasKey("PhoneModelID", "PhoneModelVariantID");
 
                     b.HasIndex("PhoneModelID");
 
@@ -246,6 +232,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
                     b.Property<string>("OperatingSystem")
                         .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("PhoneModelID");
 
@@ -319,6 +308,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.Property<byte>("PhoneModelVariantID")
                         .HasColumnType("tinyint");
 
+                    b.Property<byte>("PhoneVendorPhoneID")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("CarrierID")
                         .HasColumnType("varchar(64)");
 
@@ -328,14 +320,22 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.Property<DateTime?>("LastUpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PaymentType")
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("Price")
+                        .HasColumnType("varchar(16)");
+
                     b.Property<string>("URL")
                         .HasColumnType("varchar(2083)");
 
-                    b.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID", "CarrierID");
+                    b.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID", "PhoneVendorPhoneID");
+
+                    b.HasIndex("CarrierID");
 
                     b.HasIndex("VendorID");
 
-                    b.HasIndex("PhoneModelID", "PhoneModelVariantID", "CarrierID");
+                    b.HasIndex("PhoneModelID", "PhoneModelVariantID");
 
                     b.ToTable("VendorPhones");
                 });
@@ -379,11 +379,6 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
             modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>
                 {
-                    b.HasOne("SoftwareEngineeringProject.Models.Carrier", "Carrier")
-                        .WithMany("Phones")
-                        .HasForeignKey("CarrierID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("SoftwareEngineeringProject.Models.PhoneModel", "Model")
                         .WithMany("Phones")
                         .HasForeignKey("PhoneModelID")
@@ -420,6 +415,10 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
             modelBuilder.Entity("SoftwareEngineeringProject.Models.VendorPhone", b =>
                 {
+                    b.HasOne("SoftwareEngineeringProject.Models.Carrier", "Carrier")
+                        .WithMany("VendorPhones")
+                        .HasForeignKey("CarrierID");
+
                     b.HasOne("SoftwareEngineeringProject.Models.Vendor", "Vendor")
                         .WithMany("VendorPhones")
                         .HasForeignKey("VendorID")
@@ -427,7 +426,7 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
                     b.HasOne("SoftwareEngineeringProject.Models.Phone", "Phone")
                         .WithMany("VendorPhones")
-                        .HasForeignKey("PhoneModelID", "PhoneModelVariantID", "CarrierID")
+                        .HasForeignKey("PhoneModelID", "PhoneModelVariantID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }

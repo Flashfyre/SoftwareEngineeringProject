@@ -32,5 +32,7 @@ namespace SoftwareEngineeringProject.Models
                 return new object[] { VendorID, LastUpdatedDate };
             }
         }
+
+        public static readonly string[] VendorIDs = new string[] { "Bell", "Best Buy" };
     }
 }

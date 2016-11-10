@@ -19,22 +19,11 @@ namespace SoftwareEngineeringProject.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [Column(Order = 1, TypeName = "tinyint")]
         public byte PhoneModelVariantID { get; set; }
-        [Key]
         [Column(Order = 2, TypeName = "varchar(64)")]
-        public string CarrierID { get; set; }
-        [ForeignKey("CarrierID")]
-        public Carrier Carrier { get; set; }
-        [Column(Order = 3, TypeName = "varchar(32)")]
-        public string PaymentType { get; set; }
-        [Column(Order = 4, TypeName = "varchar(16)")]
-        public string Price { get; set; }
-        [Column(Order = 5, TypeName = "varchar(16)")]
         public string Colour { get; set; }
-        [Column(Order = 6, TypeName = "varchar(16)")]
+        [Column(Order = 3, TypeName = "varchar(16)")]
         public string Memory { get; set; }
-        [Column(Order = 7, TypeName = "datetime2")]
-        public DateTime? ReleaseDate { get; set; }
-        [Column(Order = 8, TypeName = "datetime2")]
+        [Column(Order = 4, TypeName = "datetime2")]
         public override DateTime? LastUpdatedDate { get; set; }
         public ICollection<VendorPhone> VendorPhones { get; set; }
         [NotMapped]
@@ -42,7 +31,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new string[] { nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(CarrierID), nameof(PaymentType), nameof(Price), nameof(Colour), nameof(Memory), nameof(LastUpdatedDate) };
+                return new string[] { nameof(PhoneModelID), nameof(PhoneModelVariantID), nameof(Colour), nameof(Memory), nameof(LastUpdatedDate) };
             }
         }
         [NotMapped]
@@ -50,7 +39,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return new object[] { PhoneModelID, PhoneModelVariantID, CarrierID, PaymentType, Price, Colour, Memory, LastUpdatedDate };
+                return new object[] { PhoneModelID, PhoneModelVariantID, Colour, Memory, LastUpdatedDate };
             }
         }
         [NotMapped]
@@ -58,35 +47,36 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                return 3;
+                return 2;
             }
         }
-        [NotMapped]
-        public string ImageURL
+
+        public string GetImageURL(ICollection<VendorPhone> vendorPhones = null)
         {
-            get
+            if (vendorPhones == null)
+                vendorPhones = VendorPhones;
+            string vendorID = vendorPhones.Any() ? GetImageSourceVendorID(vendorPhones) : null;
+            string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_") : null;
+            if (url != null && File.Exists("wwwroot" + url))
+                return string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_");
+            else
+                return string.Empty;
+        }
+
+        public string GetImageSourceVendorID(ICollection<VendorPhone> vendorPhones)
+        {
+            foreach (string vendorID in Vendor.VendorIDs)
             {
-                string vendorID = VendorPhones.Any() ? VendorPhones.First().VendorID : null;
-                string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_") : null;
-                if (url != null && File.Exists("wwwroot" + url))
-                    return string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_");
-                else
-                    return string.Empty;
+                if (vendorPhones.Any(vp => vp.VendorID == vendorID))
+                    return vendorID;
             }
+
+            return null;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1}/{2}/{3}/{4}/{5}", GetType().Name, PhoneModelID, CarrierID, PaymentType, Memory, Colour);
+            return string.Format("{0} {1}/{2}/{3}", GetType().Name, PhoneModelID, Memory, Colour);
         }
     }
-
-    /*public enum EnumNetworkType : byte
-    {
-        _None,
-        _3G,
-        _4G,
-        _LTE,
-        _LTE_Advanced
-    }*/
 }

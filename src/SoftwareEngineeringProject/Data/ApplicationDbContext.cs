@@ -42,20 +42,20 @@ namespace SoftwareEngineeringProject.Data
             });
             builder.Entity<Phone>(e =>
             {
-                e.HasKey("PhoneModelID", "PhoneModelVariantID", "CarrierID");
+                e.HasKey("PhoneModelID", "PhoneModelVariantID");
                 e.HasOne(x => x.Model).WithMany(x => x.Phones);
-                e.HasOne(x => x.Carrier).WithMany(x => x.Phones);
                 e.HasMany(x => x.VendorPhones).WithOne(x => x.Phone);
             });
             builder.Entity<Carrier>(e =>
             {
                 e.HasKey("CarrierID");
-                e.HasMany(x => x.Phones).WithOne(x => x.Carrier);
+                e.HasMany(x => x.VendorPhones).WithOne(x => x.Carrier);
             });
             builder.Entity<VendorPhone>(e =>
             {
-                e.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID", "CarrierID");
+                e.HasKey("VendorID", "PhoneModelID", "PhoneModelVariantID", "PhoneVendorPhoneID");
                 e.HasOne(x => x.Vendor).WithMany(x => x.VendorPhones);
+                e.HasOne(x => x.Carrier).WithMany(x => x.VendorPhones);
                 e.HasOne(x => x.Phone).WithMany(x => x.VendorPhones);
             });
             builder.Entity<VendorCrawlPage>(e =>
