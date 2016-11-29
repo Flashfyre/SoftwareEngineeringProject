@@ -18,6 +18,7 @@ namespace SoftwareEngineeringProject.Data
         public DbSet<VendorCrawlPage> VendorCrawlPages { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<SavedPhoneModel> SavedPhoneModels { get; set; }
+        public DbSet<MergedPhoneModel> MergedPhoneModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -73,6 +74,11 @@ namespace SoftwareEngineeringProject.Data
                 e.HasKey("UserID", "PhoneModelID");
                 e.HasOne(x => x.User);
                 e.HasOne(x => x.PhoneModel);
+            });
+            builder.Entity<MergedPhoneModel>(e =>
+            {
+                e.HasKey("FromPhoneModelID");
+                e.HasOne(x => x.ToPhoneModel);
             });
         }
 

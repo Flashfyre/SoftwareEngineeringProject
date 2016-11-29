@@ -55,9 +55,18 @@ namespace SoftwareEngineeringProject.Models
             }
         }
 
+        public string ToString(bool forCrawler)
+        {
+            if (forCrawler)
+                return string.Format("page {0} of {1} for {2} ({3})", VendorCrawlPageID, Vendor.CrawlPages.Count(), Vendor.ToString(), URL);
+            else
+                return ToString();   
+        }
+
         public override string ToString()
         {
-            return string.Format("page {0} of {1} for {2} ({3})", VendorCrawlPageID, Vendor.CrawlPages.Count(), Vendor.ToString(), URL);
+           
+            return string.Format("{0} {1}/{2}/{3}", GetType().Name, VendorID, VendorCrawlPageID, URL);
         }
     }
 }

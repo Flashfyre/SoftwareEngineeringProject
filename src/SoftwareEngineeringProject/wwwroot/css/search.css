@@ -23,7 +23,6 @@
           transition-property: margin-left;
 }
 
-
 #results-container > #results-pages-container > .results-page-container {
     display: inline-block;
 }
@@ -35,6 +34,7 @@
 
 #results-container > #results-pages-container > .results-page-container > .result {
     text-align: center;
+    padding-top: 2em;
     border-radius: 1em;
     -webkit-transition-timing-function: ease;
        -o-transition-timing-function: ease;
@@ -49,6 +49,7 @@
 
 #results-container > #results-pages-container > .results-page-container > .result > a > img, #details-container > img {
     width: 100%;
+    mix-blend-mode: multiply;
 }
 
 #results-container > #results-pages-container > .results-page-container > .result > a > h4 {
@@ -73,4 +74,12 @@
 
 #results-container, #details-container {
     padding: 0;
+}
+
+#details-container {
+    padding: 0 0.5em;
+}
+
+#details-container > #phone-model-description > p:first {
+    padding-top: 1em;
 }

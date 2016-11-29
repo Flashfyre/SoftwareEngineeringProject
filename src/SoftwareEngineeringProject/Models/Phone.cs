@@ -56,11 +56,12 @@ namespace SoftwareEngineeringProject.Models
             if (vendorPhones == null)
                 vendorPhones = VendorPhones;
             string vendorID = vendorPhones.Any() ? GetImageSourceVendorID(vendorPhones) : null;
-            string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_") : null;
+            string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID.Replace(" ", "_").Replace("+", "_Plus"),
+                Colour == "N/A" ? string.Empty : Colour.Replace(" ", "_") + "_") : null;
             if (url != null && File.Exists("wwwroot" + url))
-                return string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID, Colour == "N/A" ? string.Empty : Colour + "_");
+                return url;
             else
-                return string.Empty;
+                return "/images/Default.png";
         }
 
         public string GetImageSourceVendorID(ICollection<VendorPhone> vendorPhones)

@@ -33,7 +33,8 @@ namespace SoftwareEngineeringProject.Data
 
                 List<VendorCrawlPage> newVendorCrawlPages = new List<VendorCrawlPage>() {
                     new VendorCrawlPage("Bell", "http://www.bell.ca/Mobility/Smartphones_and_mobile_internet_devices"),
-                    new VendorCrawlPage("Best Buy", "http://www.bestbuy.ca/en-CA/category/cell-phones-plans/696304.aspx?type=product&page=1&sortBy=relevance&sortDir=desc&pageSize=100")
+                    new VendorCrawlPage("Best Buy", "http://www.bestbuy.ca/en-CA/category/cell-phones-plans/696304.aspx?type=product&page=1&sortBy=relevance&sortDir=desc&pageSize=100"),
+                    new VendorCrawlPage("TELUS", "http://www.telus.com/en/on/mobility/catalog/")
                 };
 
                 newVendorCrawlPages.RemoveAll(vcp => vendorCrawlPageURLs.Contains(vcp.URL));

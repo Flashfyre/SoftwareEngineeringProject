@@ -4,4 +4,5 @@
 
 .wishlist-phone > a > img {
     width: 100%;
+    mix-blend-mode: multiply;
 }

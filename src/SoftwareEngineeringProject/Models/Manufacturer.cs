@@ -12,6 +12,11 @@ namespace SoftwareEngineeringProject.Models
         public string ManufacturerID { get; set; }
         public ICollection<PhoneModel> PhoneModels { get; set; }
 
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", GetType().Name, ManufacturerID);
+        }
+
         public static readonly string[] ManufacturerIDs = new string[]
         {
             "Alcatel",

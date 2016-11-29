@@ -75,14 +75,22 @@ namespace SoftwareEngineeringProject.Models
             commandText += ")";
 
             command = new SqlCommand(commandText, conn);
-            command.ExecuteNonQuery();
 
-            conn.Close();
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("{0} was successfully added to the database.", ToString());
-            Console.ForegroundColor = ConsoleColor.Gray;
-
+            try
+            {
+                command.ExecuteNonQuery();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("{0} was successfully added to the database.", ToString());
+            } catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("{0} could not be added to the database: {1}", ToString(), e.Message);
+            } finally
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                conn.Close();
+            }
+            
             return this;
         }
 
@@ -105,13 +113,21 @@ namespace SoftwareEngineeringProject.Models
             commandText += IdWhereClause;
 
             command = new SqlCommand(commandText, conn);
-            command.ExecuteNonQuery();
 
-            conn.Close();
-
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("{0} was successfully updated.", ToString());
-            Console.ForegroundColor = ConsoleColor.Gray;
+            try
+            {
+                command.ExecuteNonQuery();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("{0} was successfully updated.", ToString());
+            } catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("{0} could not be updated: {1}", ToString(), e.Message);
+            } finally
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                conn.Close();
+            }
 
             return this;
         }
@@ -121,13 +137,24 @@ namespace SoftwareEngineeringProject.Models
             conn.Open();
 
             SqlCommand command = new SqlCommand("DELETE FROM " + tableName + IdWhereClause, conn);
-            command.ExecuteNonQuery();
 
-            conn.Close();
 
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("{0} was successfully deleted from the database.", ToString());
-            Console.ForegroundColor = ConsoleColor.Gray;
+            try
+            {
+                command.ExecuteNonQuery();
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine("{0} was successfully deleted from the database.", ToString());
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("{0} could not be deleted from the database: {1}", ToString(), e.Message);
+            }
+            finally
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                conn.Close();
+            }
 
             return this;
         }

@@ -33,6 +33,6 @@ namespace SoftwareEngineeringProject.Models
             }
         }
 
-        public static readonly string[] VendorIDs = new string[] { "Bell", "Best Buy" };
+        public static readonly string[] VendorIDs = new string[] { "Bell", "Best Buy", "TELUS" };
     }
 }

@@ -16,7 +16,8 @@ public class PhoneModelRepository : IRepository<PhoneModel, string>
 
     public IEnumerable<PhoneModel> GetAll()
     {
-        return context.PhoneModels.Include(pm => pm.Manufacturer).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Vendor).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Carrier).AsEnumerable();
+        return context.PhoneModels.Include(pm => pm.Manufacturer).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Vendor).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones)
+            .ThenInclude(vp => vp.Carrier).Where(pm => pm.Phones.Any()).AsEnumerable();
     }
 
     public void Add(PhoneModel PhoneModelIn)
@@ -27,7 +28,8 @@ public class PhoneModelRepository : IRepository<PhoneModel, string>
 
     public PhoneModel Find(string id)
     {
-        return context.PhoneModels.Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Vendor).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Carrier).SingleOrDefault(q => q.PhoneModelID == id);
+        return context.PhoneModels.Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Vendor).Include(pm => pm.Phones).ThenInclude(p => p.VendorPhones).ThenInclude(vp => vp.Carrier)
+            .SingleOrDefault(q => q.PhoneModelID == id);
     }
 
     public bool Remove(PhoneModel PhoneModelIn)

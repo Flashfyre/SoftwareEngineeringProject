@@ -195,6 +195,24 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.ToTable("Manufacturers");
                 });
 
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.MergedPhoneModel", b =>
+                {
+                    b.Property<string>("FromPhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ToPhoneModelID")
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("FromPhoneModelID");
+
+                    b.HasIndex("ToPhoneModelID");
+
+                    b.ToTable("MergedPhoneModels");
+                });
+
             modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>
                 {
                     b.Property<string>("PhoneModelID")
@@ -315,7 +333,7 @@ namespace SoftwareEngineeringProject.Data.Migrations
                         .HasColumnType("varchar(64)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(MAX)");
 
                     b.Property<DateTime?>("LastUpdatedDate")
                         .HasColumnType("datetime2");
@@ -325,6 +343,9 @@ namespace SoftwareEngineeringProject.Data.Migrations
 
                     b.Property<string>("Price")
                         .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Restrictions")
+                        .HasColumnType("varchar(128)");
 
                     b.Property<string>("URL")
                         .HasColumnType("varchar(2083)");
@@ -375,6 +396,13 @@ namespace SoftwareEngineeringProject.Data.Migrations
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.MergedPhoneModel", b =>
+                {
+                    b.HasOne("SoftwareEngineeringProject.Models.PhoneModel", "ToPhoneModel")
+                        .WithMany()
+                        .HasForeignKey("ToPhoneModelID");
                 });
 
             modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>

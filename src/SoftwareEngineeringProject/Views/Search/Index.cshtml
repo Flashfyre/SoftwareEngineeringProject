@@ -14,6 +14,12 @@
 <script type="text/javascript">
     var currentPage = @page;
     var totalResults = @totalResults;
+    var onPageLinkClick = function() {
+        if (!$(this).hasClass("disabled")) {
+            gotoPage($(this).attr("data-page-id"));
+            updateResultsText();
+        }
+    };
 
     $(document).ready(function () {
         $("#results-container > #results-pages-container").css("width", (@totalPages * 100) + "%");
@@ -39,11 +45,15 @@
                 } else
                     showPhoneDetails(resultLink)
                 $(this).parent().addClass("selected").addClass("bg-info");
-                console.log($(this).parent().parent().parent().parent());
                 $(this).parent().parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
+                updatePhoneModelDescription($(this).data("phone-model-id"));
+                if (!shouldTransitionDetails)
+                    $("#results-container > #results-pages-container").css("margin-left", -((($(".results-page-container:first").width() * (currentPage - 1)) * 0.66666667)) + "px");
             } else {
                 $("#details-container > img").attr("src", "");
+                $("#details-container > #phone-model-description").html("");
                 $(this).parent().parent().parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
+                $("#results-container > #results-pages-container").css("margin-left", -((($(".results-page-container:first").width() * (currentPage - 1)) * 1.49999992)) + "px");
             }
         });
 
@@ -51,6 +61,8 @@
             var filterClass = null;
             if ($(this).is("#manufacturer-filter"))
                 filterClass = "filter-manufacturer-id";
+            else if ($(this).is("#os-filter"))
+                filterClass = "filter-os-ids";
             else if ($(this).is("#memory-filter"))
                 filterClass = "filter-memory-ids";
 
@@ -63,19 +75,37 @@
             }
         });
 
-        $("#results-page-controls-container > a.page-link").click(function() {
-            if (!$(this).hasClass("disabled")) {
-                gotoPage($(this).attr("data-page-id"));
-                updateResultsText();
-            }
-        });
+        $("#results-page-controls-container > a.page-link").click(onPageLinkClick);
 
         updateResultsText();
     });
 
+    function updatePhoneModelDescription(phoneModelID) {
+        $.ajax({
+            type: "POST",
+            url: '/Phone/GetPhoneModelDescription',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            data: {
+                phoneModelID: phoneModelID,
+                overviewOnly: true,
+                __RequestVerificationToken: $("input[name=__RequestVerificationToken]").val()
+            },
+            dataType: "json",
+            success: function (data) {
+                console.log(data[1]);
+                if (data[0]) // If the operation succeeded, update the phone model description
+                    $("#details-container > #phone-model-description").html(data[1]);
+                else // If the operation failed, display an error message
+                    alert(data[1]);
+            },
+            error: function () {
+                alert("An error occurred while attempting to retrieve the phone model description.");
+            }
+        });
+    }
+
     function gotoPage(page) {
         currentPage = page;
-        console.log(page);
         $("#results-container > #results-pages-container").css("margin-left", -(($(".results-page-container:first").width() * (page - 1))) + "px");
         $("#results-container > #results-page-controls-container > a.disabled").removeClass("disabled");
         $("#results-container > #results-page-controls-container > a.page-link-prev").attr("data-page-id", Math.max(page - 1, 1));
@@ -84,13 +114,14 @@
     }
 
     function updateResultsText() {
-        $("#results-text").html(@Html.Raw("'Showing ' + (((currentPage - 1) << 4) + 1) + ' - ' + Math.min(currentPage << 4, totalResults) + ' of ' + totalResults + ' Result' + (totalResults != 1 ? 's' : '')"));
+        $("#results-text").html(@Html.Raw("totalResults > 0 ? 'Showing ' + (((currentPage - 1) << 4) + 1) + ' - ' + Math.min(currentPage << 4, totalResults) + ' of ' + totalResults + ' Result' + (totalResults != 1 ? 's' : '') : 'No Results Found'"));
     }
 
     function updateResultVisibility() {
         var $resultsContainer = $("#results-container");
         var visibleCount = 0;
         var classes = $resultsContainer[0].className.split(' ');
+        var pageCount = Math.max(((totalResults - 1) >> 4) + 1, 1);
         classes.shift();
         $(".result").each(function () {
             var isHidden = false;
@@ -125,7 +156,38 @@
         if (currentPage > newLastPage)
             gotoPage(newLastPage);
 
+        updatePageControls(pageCount);
         updateResultsText();
+    }
+
+    function updatePageControls(oldPageCount) {
+        var removeNumbers = false;
+        var newPageCount = ((totalResults - 1) >> 4) + 1;
+        var $nextPageLink = $("#results-page-controls-container > a.page-link-next");
+        var $lastPageLink = $("#results-page-controls-container > a.page-link-last");
+
+        $("#results-page-controls-container > a.page-link-number").each(function() {
+            if (removeNumbers)
+                $(this).remove();
+            else if (parseInt($(this).attr("data-page-id")) >= newPageCount)
+                removeNumbers = true;
+        });
+
+        if (oldPageCount < newPageCount) {
+            for (var p = oldPageCount + 1; p <= newPageCount; p++)
+                $('<a href="javascript:void(0)" data-page-id="' + p + '" class="page-link page-link-number">' + p + '</a>').on("click", onPageLinkClick)
+                    .insertBefore($("#results-page-controls-container > a.page-link-next"));
+        }
+
+        if ($nextPageLink.prev().is("a.page-link-number.disabled")) {
+            $nextPageLink.addClass("disabled").attr("data-page-id", currentPage);
+            $lastPageLink.addClass("disabled");
+        } else {
+            $nextPageLink.removeClass("disabled").attr("data-page-id", currentPage + 1);
+            $lastPageLink.removeClass("disabled");
+        }
+
+        $lastPageLink.attr("data-page-id", newPageCount);
     }
 
     function showPhoneDetails(resultLink) {
@@ -135,6 +197,11 @@
     }
 </script>
 
+<div class="row">
+    <h2>Search</h2>
+    <hr />
+    @await Html.PartialAsync("_SearchPartial")
+</div>
 <div class="row">
     <h2>Filters</h2>
     <hr />
@@ -181,7 +248,8 @@
                 <div class="results-page-container" data-page-id="@pg">
                     @foreach (PhoneModel phoneModel in Model.Skip((pg - 1) << 4).Take(Math.Min(totalResults - ((pg - 1) << 4), 16)))
                     {
-                        <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
+                        string[] osInclusions = ViewBag.OSOptionInclusions[phoneModel.OperatingSystem];
+                        <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-os-ids="@Html.Raw(phoneModel.OperatingSystem + (osInclusions.Any() ? "," + string.Join(",", osInclusions) : ""))" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
                             <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
                                 <img src="@phoneModel.Phones.First().GetImageURL()" />
                                 <h4>@phoneModel.PhoneModelID</h4>
@@ -193,27 +261,21 @@
          </div>
         <hr />
         <div id="results-page-controls-container">
-            <a href="javascript:void(0)" data-page-id="1" class="page-link@{ @Html.Raw(page > 1 ? "" : " disabled"); }"><<</a>
+            <a href="javascript:void(0)" data-page-id="1" class="page-link page-link-first@{ @Html.Raw(page > 1 ? "" : " disabled"); }"><<</a>
             <a href="javascript:void(0)" data-page-id="@(Math.Max(page - 1, 1))" class="page-link page-link-prev@{ @Html.Raw(page > 1 ? "" : " disabled"); }"><</a>
             @for (int p = Math.Max(page - 5, 1); p <= Math.Min(page + 5, totalPages); p++)
             {
                 <a href="javascript:void(0)" data-page-id="@p" class="page-link page-link-number@{ @Html.Raw(p != page ? "" : " disabled"); }">@p</a>
             }
             <a href="javascript:void(0)" data-page-id="@(Math.Min(page + 1, totalPages))" class="page-link page-link-next@{ @Html.Raw(page < totalPages ? "" : " disabled"); }">></a>
-            <a href="javascript:void(0)" data-page-id="@totalPages" class="page-link@{ @Html.Raw(page < totalPages ? "" : " disabled"); }">>></a>
+            <a href="javascript:void(0)" data-page-id="@totalPages" class="page-link page-link-last@{ @Html.Raw(page < totalPages ? "" : " disabled"); }">>></a>
         </div>
     </div>
     <div id="details-container" class="col-md-4" style="display: none;">
         <h2>Details</h2>
         <hr />
         <img src="" />
-        <p>
-            This text is for detailing this phone's summary and basic details.
-            This will be filled with text from the description of a phone.<br /><br />
-
-            This section is displayed when a user clicks on one of the images from the left,
-            or they can click the link to directly visit the product page.
-        </p>
+        <span id="phone-model-description"></span>
         <a href="javascript:void(0)">Go to Phone Page</a>
     </div>
 </div>
