@@ -222,12 +222,15 @@ C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngin
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\20161122204451_dbupdate_005.Designer.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\20161125214433_dbupdate_006.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\20161125214433_dbupdate_006.Designer.cs
+C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\20161130165534_dbupdate_007.cs
+C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\20161130165534_dbupdate_007.Designer.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Data\Migrations\ApplicationDbContextModelSnapshot.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Helpers\FormatHelper.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\ApplicationUser.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Carrier.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Manufacturer.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\MergedPhoneModel.cs
+C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\OperatingSystemInclusion.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Phone.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\PhoneModel.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\SavedPhoneModel.cs
@@ -254,6 +257,7 @@ C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngin
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\IJoinTableRepository.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\IRepository.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\ManufacturerRepository.cs
+C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\OperatingSystemInclusionRepository.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\PhoneModelRepository.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\Repositories\SavedPhoneModelRepository.cs
 C:\Users\Samuel\Documents\GitHub\VS\SoftwareEngineeringProject\src\SoftwareEngineeringProject\Models\SearchViewModels\SearchViewModel.cs

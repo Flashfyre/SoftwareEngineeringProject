@@ -37,23 +37,33 @@
             if (!isSelected) {
                 var resultLink = $(this);
                 if (shouldTransitionDetails) {
-                    $("#details-container > img").animate({
+                    $("#phone-images-carousel").animate({
                         opacity: 0.0
                     }, 250, function () {
-                        showPhoneDetails(resultLink);
+                        updatePhoneModelImages($(resultLink).data("phone-model-id"));
                     });
                 } else
-                    showPhoneDetails(resultLink)
+                    updatePhoneModelImages($(resultLink).data("phone-model-id"));
                 $(this).parent().addClass("selected").addClass("bg-info");
-                $(this).parent().parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/" + $(this).data("phone-model-id"));
+                $(this).parent().parent().parent().parent().removeClass("col-md-12").addClass("col-md-8").next("#details-container").show(550).children("a").attr("href", "/Phone/"
+                    + $(this).data("phone-model-id"));
                 updatePhoneModelDescription($(this).data("phone-model-id"));
-                if (!shouldTransitionDetails)
+                if (!shouldTransitionDetails) {
                     $("#results-container > #results-pages-container").css("margin-left", -((($(".results-page-container:first").width() * (currentPage - 1)) * 0.66666667)) + "px");
+                    $(".phone-image.height-resized").each(function() { $(this).css("height", (parseInt($(this).attr("data-height")) * 0.66666667) + "px").attr("data-height",
+                        parseInt($(this).attr("data-height")) * 0.66666667) });
+                    $(".phone-image.width-resized").each(function() { $(this).css("width", (parseInt($(this).attr("data-width")) * 0.66666667) + "px").attr("data-width",
+                        parseInt($(this).attr("data-width")) * 0.66666667) });
+                }
             } else {
-                $("#details-container > img").attr("src", "");
+                resetPhoneModelImages();
                 $("#details-container > #phone-model-description").html("");
                 $(this).parent().parent().parent().parent().removeClass("col-md-8").addClass("col-md-12").next("#details-container").attr("href", "").hide();
                 $("#results-container > #results-pages-container").css("margin-left", -((($(".results-page-container:first").width() * (currentPage - 1)) * 1.49999992)) + "px");
+                $(".phone-image.height-resized").each(function() { $(this).css("height", Math.round(parseFloat($(this).attr("data-height")) * 1.49999992) + "px").attr("data-height",
+                    Math.round(parseFloat($(this).attr("data-height")) * 1.49999992)) });
+                $(".phone-image.width-resized").each(function() { $(this).css("width", Math.round(parseFloat($(this).attr("data-width")) * 1.49999992) + "px").attr("data-width",
+                    Math.round(parseFloat($(this).attr("data-width")) * 1.49999992)) });
             }
         });
 
@@ -61,6 +71,8 @@
             var filterClass = null;
             if ($(this).is("#manufacturer-filter"))
                 filterClass = "filter-manufacturer-id";
+            else if ($(this).is("#carrier-filter"))
+                filterClass = "filter-carrier-ids";
             else if ($(this).is("#os-filter"))
                 filterClass = "filter-os-ids";
             else if ($(this).is("#memory-filter"))
@@ -81,6 +93,7 @@
     });
 
     function updatePhoneModelDescription(phoneModelID) {
+        $("#details-container > #phone-model-description").html("Loading description...");
         $.ajax({
             type: "POST",
             url: '/Phone/GetPhoneModelDescription',
@@ -92,11 +105,7 @@
             },
             dataType: "json",
             success: function (data) {
-                console.log(data[1]);
-                if (data[0]) // If the operation succeeded, update the phone model description
-                    $("#details-container > #phone-model-description").html(data[1]);
-                else // If the operation failed, display an error message
-                    alert(data[1]);
+                $("#details-container > #phone-model-description").html(data[0] ? data[1] : "<p>No description available</p>");
             },
             error: function () {
                 alert("An error occurred while attempting to retrieve the phone model description.");
@@ -104,12 +113,53 @@
         });
     }
 
+    function updatePhoneModelImages(phoneModelID) {
+        $.ajax({
+            type: "POST",
+            url: '/Phone/GetPhoneModelImageURLs',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            data: {
+                phoneModelID: phoneModelID,
+                __RequestVerificationToken: $("input[name=__RequestVerificationToken]").val()
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data[0]) {// If the operation succeeded, add the images to the details section
+                    resetPhoneModelImages();
+                    for (var i = 0; i < data[1].length; i++) {
+                        if (i == 0)
+                            $("#phone-images-carousel > .carousel-inner > .item > img").attr("src", data[1][0]).on("load", function() {
+                                $(this).off("load");
+                                $("#phone-images-carousel").animate({
+                                    opacity: 1.0
+                                }, 250);
+                            });
+                        else {
+                            $("#phone-images-carousel > .carousel-indicators").append('<li data-target="#phone-images-carousel" data-slide-to="' + i + '"></li>');
+                            $("#phone-images-carousel > .carousel-inner").append('<div class="item"><img src="' + data[1][i] + '" class="img-responsive" /></div>')
+                        }
+                    }
+                } else // If the operation failed, display an error message
+                    alert(data[1][0]);
+            },
+            error: function () {
+                alert("An error occurred while attempting to retrieve the phone model's images.");
+            }
+        });
+    }
+
+    function resetPhoneModelImages() {
+        $("#phone-images-carousel > .carousel-indicators > li:not(:first-child), #phone-images-carousel > .carousel-inner > .item:not(:first-child)").remove();
+        $("#phone-images-carousel > .carousel-indicators > li").addClass("active");
+        $("#phone-images-carousel > .carousel-inner > .item > img").attr("src", "").parent().addClass("active");
+    }
+
     function gotoPage(page) {
         currentPage = page;
         $("#results-container > #results-pages-container").css("margin-left", -(($(".results-page-container:first").width() * (page - 1))) + "px");
         $("#results-container > #results-page-controls-container > a.disabled").removeClass("disabled");
         $("#results-container > #results-page-controls-container > a.page-link-prev").attr("data-page-id", Math.max(page - 1, 1));
-        $("#results-container > #results-page-controls-container > a.page-link-next").attr("data-page-id", Math.min(page + 1, @totalPages));
+        $("#results-container > #results-page-controls-container > a.page-link-next").attr("data-page-id", Math.min(page + 1, ((totalResults >> 4) + 1)));
         $("#results-container > #results-page-controls-container > a[data-page-id=" + page + "]").addClass("disabled");
     }
 
@@ -138,13 +188,15 @@
 
             if (!isHidden) {
                 visibleCount++;
-                $(this).detach().appendTo($(".results-page-container[data-page-id=" + ((visibleCount >> 4) + 1) + "]"));
+                $(this).detach().appendTo($(".results-page-container[data-page-id=" + (((visibleCount - 1) >> 4) + 1) + "]"));
             }
 
             if (isHidden != ($(this).css("display") == "none")) {
-                if (isHidden)
-                    $(this).hide(250);
-                else
+                if (isHidden) {
+                    $(this).addClass("hiding").hide(250, "linear", function() {
+                        $(this).removeClass("hiding");
+                    });
+                } else
                     $(this).show(250);
             }
         });
@@ -153,11 +205,38 @@
 
         totalResults = visibleCount;
 
+        sortResults();
+
         if (currentPage > newLastPage)
             gotoPage(newLastPage);
 
         updatePageControls(pageCount);
         updateResultsText();
+    }
+
+    function sortResults() {
+        var $results = $(".result:visible:not(.hiding)");
+
+        // Modified version of code from http://trentrichardson.com/2013/12/16/sort-dom-elements-jquery/
+        $results.sort(function (a, b) {
+            var aAttr, bAttr;
+
+            aAttr = $(a).children("a").attr("data-phone-model-id").toLowerCase();
+            bAttr = $(b).children("a").attr("data-phone-model-id").toLowerCase();
+
+            if (aAttr > bAttr)
+                return 1;
+            else if (aAttr < bAttr)
+                return -1;
+            return 0;
+        });
+
+        var resultIndex = 0;
+
+        $results.each(function() {
+            var pageNumber = ((++resultIndex - 1) >> 4) + 1;
+            $(this).detach().appendTo($(".results-page-container[data-page-id=" + pageNumber + "]"));
+        });
     }
 
     function updatePageControls(oldPageCount) {
@@ -189,12 +268,6 @@
 
         $lastPageLink.attr("data-page-id", newPageCount);
     }
-
-    function showPhoneDetails(resultLink) {
-        $("#details-container > img").attr("src", $(resultLink).children("img").attr("src")).animate({
-            opacity: 1.0
-        }, 250);
-    }
 </script>
 
 <div class="row">
@@ -215,8 +288,12 @@
         </select>
     </div>
     <div class="col-md-3">
-        <select class="form-control search-result-filter" id="release-year-filter">
-            <option value="">--Release Year--</option>
+        <select class="form-control search-result-filter" id="carrier-filter">
+            <option value="">--Carrier--</option>
+            @foreach (string carrierID in ViewBag.CarrierOptions)
+            {
+                <option>@carrierID</option>
+            }
         </select>
     </div>
     <div class="col-md-3">
@@ -249,9 +326,13 @@
                     @foreach (PhoneModel phoneModel in Model.Skip((pg - 1) << 4).Take(Math.Min(totalResults - ((pg - 1) << 4), 16)))
                     {
                         string[] osInclusions = ViewBag.OSOptionInclusions[phoneModel.OperatingSystem];
-                        <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID" data-os-ids="@Html.Raw(phoneModel.OperatingSystem + (osInclusions.Any() ? "," + string.Join(",", osInclusions) : ""))" data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
+                        <div class="col-md-3 result" data-manufacturer-id="@phoneModel.ManufacturerID"
+                             data-carrier-ids="@string.Join(",", phoneModel.Phones.SelectMany(p => p.VendorPhones.Select(vp => vp.CarrierID)).Distinct().ToArray())"
+                             data-os-ids="@Html.Raw(phoneModel.OperatingSystem + (osInclusions.Any() ? "," + string.Join(",", osInclusions) : ""))"
+                             data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
                             <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
-                                <img src="@phoneModel.Phones.First().GetImageURL()" />
+                                <img class="phone-image" src="@phoneModel.Phones.First().GetImageURL()" />
+                                <br />
                                 <h4>@phoneModel.PhoneModelID</h4>
                             </a>
                         </div>
@@ -274,7 +355,25 @@
     <div id="details-container" class="col-md-4" style="display: none;">
         <h2>Details</h2>
         <hr />
-        <img src="" />
+        <div id="phone-images-carousel" class="carousel slide" data-ride="carousel" data-interval="6000">
+            <ol class="carousel-indicators">
+                <li data-target="#phone-images-carousel" data-slide-to="0" class="active"></li>
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <img src="" class="img-responsive" />
+                </div>
+            </div>
+            <a class="left carousel-control" href="#phone-images-carousel" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#phone-images-carousel" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+        <br />
         <span id="phone-model-description"></span>
         <a href="javascript:void(0)">Go to Phone Page</a>
     </div>

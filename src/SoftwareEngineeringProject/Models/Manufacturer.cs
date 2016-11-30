@@ -32,6 +32,7 @@ namespace SoftwareEngineeringProject.Models
             "Motorola",
             "Nokia",
             "Samsung",
+            "Sonim",
             "Sony",
             "ZTE"
         };

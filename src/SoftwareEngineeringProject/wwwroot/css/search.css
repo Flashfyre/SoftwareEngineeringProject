@@ -52,6 +52,18 @@
     mix-blend-mode: multiply;
 }
 
+#results-container > #results-pages-container > .results-page-container > .result > a > img {
+    -webkit-transition-timing-function: ease;
+       -o-transition-timing-function: ease;
+          transition-timing-function: ease;
+    -webkit-transition-duration: .35s;
+       -o-transition-duration: .35s;
+          transition-duration: .35s;
+    -webkit-transition-property: width, height;
+       -o-transition-property: width, height;
+          transition-property: width, height;
+}
+
 #results-container > #results-pages-container > .results-page-container > .result > a > h4 {
     display: table-cell;
     vertical-align: middle;

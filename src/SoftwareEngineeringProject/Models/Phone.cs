@@ -55,13 +55,39 @@ namespace SoftwareEngineeringProject.Models
         {
             if (vendorPhones == null)
                 vendorPhones = VendorPhones;
+
             string vendorID = vendorPhones.Any() ? GetImageSourceVendorID(vendorPhones) : null;
             string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}1.png", vendorID, PhoneModelID.Replace(" ", "_").Replace("+", "_Plus"),
                 Colour == "N/A" ? string.Empty : Colour.Replace(" ", "_") + "_") : null;
+
             if (url != null && File.Exists("wwwroot" + url))
                 return url;
             else
                 return "/images/Default.png";
+        }
+
+        public string[] GetImageURLs(ICollection<VendorPhone> vendorPhones = null)
+        {
+            if (vendorPhones == null)
+                vendorPhones = VendorPhones;
+
+            List<string> imageURLs = new List<string>();
+            string vendorID = vendorPhones.Any() ? GetImageSourceVendorID(vendorPhones) : null;
+            string url = vendorID != null ? string.Format("/images/{0}/{1}_{2}{3}.png", vendorID, PhoneModelID.Replace(" ", "_").Replace("+", "_Plus"),
+                Colour == "N/A" ? string.Empty : Colour.Replace(" ", "_") + "_", "{0}") : null;
+
+            if (url != null)
+            {
+                while (File.Exists("wwwroot" + string.Format(url, imageURLs.Count() + 1)))
+                {
+                    imageURLs.Add(string.Format(url, imageURLs.Count() + 1));
+                }
+            }
+
+            if (!imageURLs.Any())
+                imageURLs.Add("/images/Default.png");
+
+            return imageURLs.ToArray();
         }
 
         public string GetImageSourceVendorID(ICollection<VendorPhone> vendorPhones)

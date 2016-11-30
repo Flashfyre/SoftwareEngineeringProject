@@ -55,6 +55,50 @@ namespace SoftwareEngineeringProject.Data
                     });
                 }
 
+                if (context.PhoneModels.Any() && !context.OperatingSystemInclusions.Any())
+                {
+                    List<string> operatingSystems = context.PhoneModels.Select(p => p.OperatingSystem).Distinct().ToList();
+
+                    List<string> inclusions;
+                    string version;
+                    bool checkVersions;
+
+                    foreach (string osInclude in operatingSystems)
+                    {
+                        inclusions = new List<string>();
+                        version = System.Text.RegularExpressions.Regex.Match(osInclude, " ([0-9x\\.]+)?").Groups[1].Value.Replace(".x", string.Empty);
+                        checkVersions = version != string.Empty;
+                        foreach (string os in operatingSystems)
+                        {
+                            if (os != osInclude)
+                            {
+                                if (osInclude.Contains(os))
+                                    context.OperatingSystemInclusions.Add(new OperatingSystemInclusion()
+                                    {
+                                        OperatingSystemID = os,
+                                        IncludedOperatingSystemID = osInclude
+                                    });
+                                else
+                                {
+                                    if (checkVersions)
+                                    {
+                                        string includeVersion = System.Text.RegularExpressions.Regex.Match(os, " ([0-9x\\.]+)?").Groups[1].Value.Replace(".x", string.Empty);
+                                        if (includeVersion != string.Empty && version.Contains(includeVersion))
+                                        {
+                                            context.OperatingSystemInclusions.Add(new OperatingSystemInclusion()
+                                            {
+                                                OperatingSystemID = os,
+                                                IncludedOperatingSystemID = osInclude
+                                            });
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
                 context.SaveChanges();
             }
         }

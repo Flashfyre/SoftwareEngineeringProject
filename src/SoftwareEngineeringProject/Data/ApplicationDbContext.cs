@@ -19,6 +19,7 @@ namespace SoftwareEngineeringProject.Data
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<SavedPhoneModel> SavedPhoneModels { get; set; }
         public DbSet<MergedPhoneModel> MergedPhoneModels { get; set; }
+        public DbSet<OperatingSystemInclusion> OperatingSystemInclusions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -79,6 +80,10 @@ namespace SoftwareEngineeringProject.Data
             {
                 e.HasKey("FromPhoneModelID");
                 e.HasOne(x => x.ToPhoneModel);
+            });
+            builder.Entity<OperatingSystemInclusion>(e =>
+            {
+                e.HasKey("OperatingSystemID", "IncludedOperatingSystemID");
             });
         }
 

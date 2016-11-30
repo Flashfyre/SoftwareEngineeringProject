@@ -64,6 +64,7 @@ namespace SoftwareEngineeringProject
 
             services.AddScoped<PhoneModelRepository, PhoneModelRepository>();
             services.AddScoped<SavedPhoneModelRepository, SavedPhoneModelRepository>();
+            services.AddScoped<OperatingSystemInclusionRepository, OperatingSystemInclusionRepository>();
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();

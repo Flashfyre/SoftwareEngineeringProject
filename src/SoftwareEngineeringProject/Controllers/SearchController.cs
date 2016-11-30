@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SoftwareEngineeringProject.Models;
 using SoftwareEngineeringProject.Models.SearchViewModels;
 using SoftwareEngineeringProject.Helpers;
-using System;
-using System.Text.RegularExpressions;
+using SoftwareEngineeringProject.Models.Repositories;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,10 +13,12 @@ namespace SoftwareEngineeringProject.Controllers
     public class SearchController : Controller
     {
         private readonly PhoneModelRepository _phoneModels;
+        private readonly OperatingSystemInclusionRepository _osInclusions;
 
-        public SearchController(PhoneModelRepository phoneModels)
+        public SearchController(PhoneModelRepository phoneModels, OperatingSystemInclusionRepository osInclusions)
         {
             _phoneModels = phoneModels;
+            _osInclusions = osInclusions;
         }
 
         // GET: /Search/Index/(Manufacturers|Models)?query=query
@@ -37,11 +38,14 @@ namespace SoftwareEngineeringProject.Controllers
 
             ViewData["TotalResults"] = results.Count();
             ViewBag.ManufacturerOptions = results.Select(pm => pm.ManufacturerID).Distinct().OrderBy(m => m);
-            ViewBag.OSOptions = osOptions = results.Select(pm => pm.OperatingSystem).Distinct().OrderBy(os => os);
-            ViewBag.MemoryOptions = results.SelectMany(pm => pm.Phones.Select(p => p.Memory).Distinct()).Distinct().OrderBy(m => FormatHelper.PadNumbers(m));
+            ViewBag.CarrierOptions = results.SelectMany(pm => pm.Phones.SelectMany(p => p.VendorPhones.Select(vp => vp.CarrierID))).Distinct().OrderBy(c => c == "No Carrier");
+            ViewBag.OSOptions = osOptions = results.Select(pm => pm.OperatingSystem).Distinct().OrderBy(os => os).OrderBy(os => os == "N/A");
+            ViewBag.MemoryOptions = results.SelectMany(pm => pm.Phones.Select(p => p.Memory).Distinct()).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).OrderBy(m => m == "N/A");
 
             Dictionary<string, string[]> osOptionInclusions = new Dictionary<string, string[]>();
-            List<string> inclusions;
+            foreach (string os in osOptions)
+                osOptionInclusions.Add(os, _osInclusions.GetAllForIncludedOSID(os).Select(osi => osi.OperatingSystemID).ToArray());
+            /*List<string> inclusions;
             string version;
             bool checkVersions;
 
@@ -68,7 +72,7 @@ namespace SoftwareEngineeringProject.Controllers
                     }
                 }
                 osOptionInclusions.Add(os, inclusions.Any() ? inclusions.ToArray() : new string[0]);
-            }
+            }*/
 
             ViewBag.OSOptionInclusions = osOptionInclusions;
 

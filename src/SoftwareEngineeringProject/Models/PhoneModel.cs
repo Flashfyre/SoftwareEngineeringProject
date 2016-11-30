@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SoftwareEngineeringProject.Models
 {
@@ -41,7 +41,7 @@ namespace SoftwareEngineeringProject.Models
             }
         }
 
-        public void SetOperatingSystem(string os, ICollection<PhoneModel> allPhoneModels)
+        public void SetOperatingSystem(string os, ICollection<PhoneModel> allPhoneModels, SqlConnection conn)
         {
             if (os != "Android" && os.Contains("Android"))
             {
@@ -56,6 +56,11 @@ namespace SoftwareEngineeringProject.Models
                 versionMatch = Regex.Match(os, "^Android ([0-9x\\.]+)? ?(\\([a-z ]+\\))?$", RegexOptions.IgnoreCase);
                 string versionNumber = versionMatch.Groups[1].Value;
                 string versionName = versionMatch.Groups[2].Value;
+                if (versionName == "(M)")
+                {
+                    versionName = "(Marshmallow)";
+                    os = os.Replace("(M)", versionName);
+                }
                 if (versionNumber != string.Empty)
                 {
                     if (versionNumber.IndexOf('.') > -1)
@@ -85,6 +90,43 @@ namespace SoftwareEngineeringProject.Models
             }
             else if (os == "Apple")
                 os = "iOS";
+
+            IEnumerable<string> operatingSystems = allPhoneModels.Select(pm => pm.OperatingSystem).Distinct();
+
+            if (!operatingSystems.Any(pm => pm == os))
+            {
+                List<OperatingSystemInclusion> inclusions = new List<OperatingSystemInclusion>();
+                string version = Regex.Match(os, " ([0-9x\\.]+)?").Groups[1].Value.Replace(".x", string.Empty);
+                bool checkVersions = version != string.Empty;
+                foreach (string includingOS in operatingSystems)
+                {
+                    if (includingOS != os)
+                    {
+                        if (os.Contains(includingOS))
+                            inclusions.Add(new OperatingSystemInclusion()
+                            {
+                                OperatingSystemID = includingOS,
+                                IncludedOperatingSystemID = os
+                            });
+                        else
+                        {
+                            if (checkVersions)
+                            {
+                                string includeVersion = Regex.Match(includingOS, " ([0-9x\\.]+)?").Groups[1].Value.Replace(".x", string.Empty);
+                                if (includeVersion != string.Empty && version.Contains(includeVersion))
+                                {
+                                    inclusions.Add(new OperatingSystemInclusion()
+                                    {
+                                        OperatingSystemID = includingOS,
+                                        IncludedOperatingSystemID = os
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                inclusions.ForEach(i => i.AddItem(conn));
+            }
 
             OperatingSystem = os;
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoftwareEngineeringProject.Models;
+using SoftwareEngineeringProject.Models.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,6 @@ namespace SoftwareEngineeringProject.Controllers
             PhoneModel phoneModel = _phoneModels.Find(PhoneModelID);
             bool success = false;
             string message = null;
-
 
             if (phoneModel != null)
             {
@@ -76,6 +76,33 @@ namespace SoftwareEngineeringProject.Controllers
                 message = "Error: No phone model exists with the ID '" + PhoneModelID + "'!";
 
             return Json(new object[] { success, message });
+        }
+
+        // POST: /Search/GetPhoneModelImageURLs
+        [HttpPost]
+        public JsonResult GetPhoneModelImageURLs(string PhoneModelID)
+        {
+            PhoneModel phoneModel = _phoneModels.Find(PhoneModelID);
+            bool success = false;
+            string errorMessage = null;
+            string[] imageURLs = null;
+
+            if (phoneModel != null)
+            {
+                if (phoneModel.Phones.Any())
+                {
+                    success = true;
+
+                    Phone phone = phoneModel.Phones.First();
+                    imageURLs = phone.GetImageURLs();
+                }
+                else
+                    errorMessage = "Error: No phones for the model '" + PhoneModelID + "' are currently available!";
+            }
+            else
+                errorMessage = "Error: No phone model exists with the ID '" + PhoneModelID + "'!";
+
+            return Json(new object[] { success, success ? imageURLs : new string[] { errorMessage } });
         }
     }
 }

@@ -213,6 +213,22 @@ namespace SoftwareEngineeringProject.Data.Migrations
                     b.ToTable("MergedPhoneModels");
                 });
 
+            modelBuilder.Entity("SoftwareEngineeringProject.Models.OperatingSystemInclusion", b =>
+                {
+                    b.Property<string>("OperatingSystemID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("IncludedOperatingSystemID")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("LastUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("OperatingSystemID", "IncludedOperatingSystemID");
+
+                    b.ToTable("OperatingSystemInclusions");
+                });
+
             modelBuilder.Entity("SoftwareEngineeringProject.Models.Phone", b =>
                 {
                     b.Property<string>("PhoneModelID")
