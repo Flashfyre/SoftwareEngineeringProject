@@ -1,0 +1,21 @@
+﻿@using NonFactors.Mvc.Grid;
+
+@model IEnumerable<ApplicationUser>
+
+@{
+    const string gridName = "admin-grid";
+    DateTime currentDate = DateTime.Now;
+}
+
+@(Html.Grid(Model).Named(gridName).Build(columns =>
+{
+    columns.Add(model => model.Id).Titled("Hidden ID");
+    columns.Add(model => model.Email).Titled("Email");
+    columns.Add(model => model.Roles.First().RoleId).Titled("Role");
+    columns.Add(model => model.LockoutEnd).Titled("Lock Account").Encoded(false).RenderedAs(model => model.Roles.First().RoleId != "Administrator" ? 
+        "<input class=\"chk-lock\" data-email=\"" + model.Email + "\" type=\"checkbox\"" + (model.LockoutEnd == null || model.LockoutEnd < currentDate ? "" : " checked") + " />" : "")
+        .Filterable(false).Sortable(false);
+})
+.Filterable()
+.Sortable()
+.Pageable(p => p.RowsPerPage = 25))

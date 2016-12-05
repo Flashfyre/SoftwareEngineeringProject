@@ -109,6 +109,10 @@ namespace SoftwareEngineeringProject.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if (user.Email == "root@softwareengineeringproject.azurewebsites.com") // Make the user an administrator if their email is the root email (email uniqueness is checked so this is safe)
+                        await _userManager.AddToRoleAsync(user, "Administrator");
+                    else // Add the member role if the user email does not match the root email
+                        await _userManager.AddToRoleAsync(user, "Member");
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                     // Send an email with this link
                     //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

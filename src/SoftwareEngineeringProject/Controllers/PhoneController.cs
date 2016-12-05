@@ -104,5 +104,15 @@ namespace SoftwareEngineeringProject.Controllers
 
             return Json(new object[] { success, success ? imageURLs : new string[] { errorMessage } });
         }
+
+        // GET: /Phone/VendorPhonesGrid
+        [HttpGet]
+        public IActionResult VendorPhonesGrid(string PhoneModelID)
+        {
+            PhoneModel phoneModel = _phoneModels.Find(PhoneModelID);
+            IEnumerable<VendorPhone> vendorPhonesList = phoneModel.Phones.SelectMany(p => p.VendorPhones);
+
+            return PartialView("MvcGrid/_VendorPhonesGrid", vendorPhonesList);
+        }
     }
 }

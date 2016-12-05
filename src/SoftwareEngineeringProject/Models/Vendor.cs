@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,6 +31,16 @@ namespace SoftwareEngineeringProject.Models
             get
             {
                 return new object[] { VendorID, LastUpdatedDate };
+            }
+        }
+        [NotMapped]
+        public string ImageURL
+        {
+            get
+            {
+                string URL = string.Format("/images/{0}.png", VendorID.Replace(" ", "_"));
+
+                return File.Exists(string.Format("wwwroot{0}", URL)) ? URL : string.Empty;
             }
         }
 

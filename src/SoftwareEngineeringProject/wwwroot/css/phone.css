@@ -2,3 +2,33 @@
     width: 100%;
     mix-blend-mode: multiply;
 }
+
+#vendor-phones-grid > table > tbody > tr:hover {
+    background-color: rgba(0, 128, 256, 0.25);
+    cursor: pointer;
+}
+
+#vendor-phones-grid > table > thead > tr > th > span.mvc-grid-filter {
+    visibility: hidden;
+}
+
+#vendor-phones-grid > table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+#vendor-phones-grid > table > tbody > tr > td > .vendor-image {
+    max-width: 64px;
+    max-height: 64px;
+}
+
+#vendor-phones-grid table > tbody > tr > td > .restriction-container {
+    float: left;
+    margin: 0.25em 0.25em 0 0;
+}
+
+#vendor-phones-grid table > tbody > tr > td > .restriction-container > .restriction {
+    padding: 0.5em;
+    border-radius: 0.5em;
+    font-size: smaller;
+    display: inline-block;
+}

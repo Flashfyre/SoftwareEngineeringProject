@@ -60,6 +60,30 @@ namespace SoftwareEngineeringProject.Models
                 return 4;
             }
         }
+        [NotMapped]
+        public string RestrictionsHTML
+        {
+            get
+            {
+                string[] restrictions = Restrictions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                string ret = restrictions.Length > 0 ? "<br />" : string.Empty;
+
+                foreach (string r in restrictions)
+                {
+                    ret += string.Format("<div class=\"restriction-container\"><span class=\"restriction bg-primary\">{0}</span></div>", r);
+                }
+
+                return ret;
+            }
+        }
+        [NotMapped]
+        public decimal PriceNumber
+        {
+            get
+            {
+                return decimal.Parse(Price.Substring(1), System.Globalization.NumberStyles.Currency);
+            }
+        }
         
         public string GetColourSpecificImageURL(string firstColour, string newColour, string vendorID, string initialURL)
         {

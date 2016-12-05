@@ -1,0 +1,24 @@
+﻿@using NonFactors.Mvc.Grid;
+
+@model IEnumerable<VendorPhone>
+
+@{
+    const string gridName = "vendor-phones-grid";
+}
+
+@(Html.Grid(Model).Named(gridName).Build(columns =>
+{
+    columns.Add(model => model.PhoneModelVariantID).Titled("Phone Variant ID").Css("hidden");
+    columns.Add(model => model.PhoneVendorPhoneID).Titled("Vendor Phone ID").Css("hidden");
+    columns.Add(model => model.URL).Titled("URL").Css("hidden");
+    columns.Add(model => model.VendorID).Titled("Vendor").RenderedAs(model => string.Format("<img class=\"vendor-image\" src=\"{0}\" alt=\"{1}\" />",
+        model.Vendor.ImageURL, model.VendorID)).Encoded(false);
+    columns.Add(model => model.CarrierID).Titled("Carrier").Filterable(true).FilteredAs("CustomTextFilter");
+    columns.Add(model => model.PaymentType).Titled("Payment Method").Filterable(true).RenderedAs(model => model.PaymentType + model.RestrictionsHTML).Encoded(false).FilteredAs("CustomTextFilter");
+    columns.Add(model => model.PriceNumber).Titled("Price").RenderedAs(model => model.Price);
+    columns.Add(model => model.Phone.Memory).Titled("Memory").Filterable(true).FilteredAs("CustomTextFilter");
+    columns.Add(model => model.Phone.Colour).Titled("Colour").Filterable(true).FilteredAs("CustomTextFilter");
+})
+.Empty("Sorry, this phone is currently not being sold by any of our tracked vendors.")
+.Sortable()
+.Pageable(pager => pager.RowsPerPage = 10))

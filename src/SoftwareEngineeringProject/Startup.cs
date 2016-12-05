@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +9,7 @@ using SoftwareEngineeringProject.Data;
 using SoftwareEngineeringProject.Models;
 using SoftwareEngineeringProject.Services;
 using SoftwareEngineeringProject.Models.Repositories;
+using NonFactors.Mvc.Grid;
 
 namespace SoftwareEngineeringProject
 {
@@ -61,6 +58,7 @@ namespace SoftwareEngineeringProject
             .AddDefaultTokenProviders();
 
             services.AddMvc();
+            services.AddMvcGrid();
 
             services.AddScoped<PhoneModelRepository, PhoneModelRepository>();
             services.AddScoped<SavedPhoneModelRepository, SavedPhoneModelRepository>();

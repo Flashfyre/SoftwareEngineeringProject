@@ -1,4 +1,5 @@
-﻿using SoftwareEngineeringProject.Data;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using SoftwareEngineeringProject.Data;
 using SoftwareEngineeringProject.Models;
 using System;
 using System.Collections.Generic;
@@ -97,6 +98,36 @@ namespace SoftwareEngineeringProject.Data
                             }
                         }
                     }
+                }
+
+                if (!context.Roles.Any())
+                {
+                    context.Roles.AddRange(
+                        new IdentityRole<string>()
+                        {
+                            Id = "Administrator",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new IdentityRole<string>()
+                        {
+                            Id = "Member",
+                            Name = "Member",
+                            NormalizedName = "MEMBER"
+                        }
+                    );
+                }
+
+                // If there are users without roles assigned, add member roles for them
+                if (context.UserRoles.Count() < context.Users.Count())
+                {
+                    context.Users.Where(u => !u.Roles.Any()).AsParallel().ForAll(
+                        u => u.Roles.Add(new IdentityUserRole<string>()
+                        {
+                            UserId = u.Id,
+                            RoleId = "Member"
+                        })
+                    );
                 }
 
                 context.SaveChanges();

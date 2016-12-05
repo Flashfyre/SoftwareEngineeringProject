@@ -1,15 +1,18 @@
-﻿@model PhoneModel
+﻿@using NonFactors.Mvc.Grid;
+
+@model PhoneModel
 
 @inject UserManager<ApplicationUser> userManager
 @inject SavedPhoneModelRepository savedPhoneModels
 
 @{
     ViewData["Title"] = Model.PhoneModelID + " - Details";
+    string[] imageURLs = Model.Phones.First().GetImageURLs();
 
     ApplicationUser user = await userManager.GetUserAsync(Context.User);
     bool isPhoneInWishlist = user != null && savedPhoneModels.GetAllForUserID(user.Id).Any(spm => spm.PhoneModelID == Model.PhoneModelID);
     IEnumerable<VendorPhone> vendorPhones = Model.Phones.SelectMany(p => p.VendorPhones);
-    IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct();
+    IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct().ToList();
     IEnumerable<string> vendorIDOptions = vendorPhones.Select(vp => vp.VendorID).Distinct();
     Dictionary<string, List<string>> carrierPaymentOptions = new Dictionary<string, List<string>>();
     Dictionary<string, List<string>> carrierMemoryOptions = new Dictionary<string, List<string>>();
@@ -49,12 +52,12 @@
         $("#phone-carrier-select").change(function () {
             var carrierID = $(this).val();
             $("option[data-carrier-ids]").each(function () {
-                $(this).prop("disabled", $(this).data("carrier-ids").split(",").indexOf(carrierID) == -1);
+                $(this).prop("disabled", carrierID != "" && $(this).data("carrier-ids").split(",").indexOf(carrierID) == -1);
             });
 
             $("#phone-payment-option-select, phone-memory-select, phone-colour-select").each(function () {
                 if ($(this).children(":selected").prop("disabled"))
-                    $(this).val($(this).children(":first-child").html());
+                    $(this).val("").trigger("change");
             });
         });
 
@@ -86,6 +89,89 @@
                 }
             });
         });
+
+        $("select.vendor-phone-filter").change(function () {
+            var tableHeaderIndex = 0;
+            switch ($(this).attr("id")) {
+                case "phone-carrier-select":
+                    tableHeaderIndex = 5;
+                    break;
+                case "phone-payment-option-select":
+                    tableHeaderIndex = 6;
+                    break;
+                case "phone-memory-select":
+                    tableHeaderIndex = 8;
+                    break;
+                case "phone-colour-select":
+                    tableHeaderIndex = 9;
+                    break;
+                default:
+                    break;
+            }
+            $("#vendor-phones-grid th:nth-child(" + tableHeaderIndex + ") > span.mvc-grid-filter").click();
+        });
+
+        var CustomTextFilter = (function () {
+            function CustomTextFilter() {
+            }
+
+            CustomTextFilter.prototype = {
+                render: function (grid, popup, filter) {
+                    var filterLang = $.fn.mvcgrid.lang.Filter;
+                    var operator = $.fn.mvcgrid.lang.Operator;
+                    var lang = $.fn.mvcgrid.lang.Text;
+                },
+                init: function (grid, column, popup) {
+                    this.bindValue(grid, column, popup);
+                    this.bindApply(grid, column, popup);
+                    this.bindCancel(grid, column, popup);
+                    var value = "";
+                    switch (column.name) {
+                        case "CarrierID":
+                            value = $("#phone-carrier-select").val();
+                            break;
+                        case "PaymentType":
+                            value = $("#phone-payment-option-select").val();
+                            break;
+                        case "Phone.Memory":
+                            value = $("#phone-memory-select").val();
+                            break;
+                        case "Phone.Colour":
+                            value = $("#phone-colour-select").val();
+                            break;
+                        default:
+                            break;
+                    }
+                    popup.removeClass('open');
+                    console.log(value);
+                    if (value != "") {
+                        column.filter.operator = "";
+                        column.filter.first.type = "Equals";
+                        column.filter.first.val = value;
+
+                        grid.applyFilter(grid, column);
+                    } else
+                        grid.cancelFilter(grid, column);
+
+                    grid.reload(grid);
+                },
+
+                bindValue: function (grid, column, popup) { },
+                bindApply: function (grid, column, popup) { },
+                bindCancel: function (grid, column, popup) { }
+            };
+
+            return CustomTextFilter;
+        })();
+
+        $(".mvc-grid").mvcgrid({
+            filters: {
+                'CustomTextFilter': new CustomTextFilter()
+            },
+            rowClicked: function (grid, row, data, e) {
+                window.location.href = data["URL"];
+            }
+        });
     });
 </script>
 
@@ -93,7 +179,33 @@
     <h2>@Model.PhoneModelID</h2>
     <hr />
     <div id="phone-image-container" class="col-md-3">
-        <img style="width:100%; height:auto;" src="@Model.Phones.First().GetImageURL()" />
+        <div id="phone-images-carousel" class="carousel slide" data-ride="carousel" data-interval="6000">
+            <ol class="carousel-indicators">
+                @for (int u = 0; u < imageURLs.Count(); u++)
+                {
+                    <li data-target="#phone-images-carousel" data-slide-to="@u"@{@Html.Raw(u == 0 ? "class=\"active\"" : "");}></li>
+                }
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                @for (int u = 0; u < imageURLs.Count(); u++)
+                {
+                    <div class="@("item" + (u == 0 ? " active" : ""))">
+                        <img src="@imageURLs[u]" class="img-responsive" />
+                    </div>
+                }
+            </div>
+            @if (imageURLs.Count() > 1)
+            {
+                <a class="left carousel-control" href="#phone-images-carousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#phone-images-carousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            }
+        </div>
         @if (!isPhoneInWishlist)
         {
             <button class="btn btn-success btn-block btn-wishlist@{ @Html.Raw(user == null ? " disabled" : ""); }">Add to My Wishlist</button>
@@ -103,82 +215,59 @@
             <button class="btn btn-danger btn-block btn-wishlist undo@{ @Html.Raw(user == null ? " disabled" : ""); }">Remove from My Wishlist</button>
         }
         @Html.AntiForgeryToken()
-    </div>
-    <div class="col-md-9">
+        <br />
         <h2>Price Comparison</h2>
         <hr />
-        <div class="col-md-6">
-            <h4>Details</h4>
-            <br />
-            <span>
-                Carrier
-                <select id="phone-carrier-select" class="form-control">
-                    <option>--Carrier--</option>
-                    @foreach (string carrierID in carrierIDOptions)
-                    {
-                        <option>@carrierID</option>
-                    }
-                </select>
-            </span>
-            <br />
-            <span>
-                Payment Option
-                <select id="phone-payment-option-select" class="form-control">
-                    <option>--Payment Option--</option>
-                    @foreach (string payment in carrierPaymentOptions.Keys.OrderBy(p => p))
-                    {
-                        <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment" disabled>@payment</option>
-                    }
-                </select>
-            </span>
-            <br />
-            <span>
-                Internal Memory
-                <select id="phone-memory-select" class="form-control">
-                    <option>--Internal Memory--</option> 
-                    @foreach (string memory in carrierMemoryOptions.Keys.OrderBy(m => FormatHelper.PadNumbers(m)))
-                    {
-                        <option data-carrier-ids="@string.Join(",", carrierMemoryOptions[memory].ToArray())" value="@memory" disabled>@memory</option>
-                    }
-                </select>
-            </span>
-            <br />
-            <span>
-                Colour
-                <select id="phone-colour-select" class="form-control">
-                    <option>--Colour--</option>
-                    @foreach (string colour in carrierColourOptions.Keys.OrderBy(c => c))
-                    {
-                        <option data-carrier-ids="@string.Join(",", carrierColourOptions[colour].ToArray())" value="@colour" disabled>@colour</option>
-                    }
-                </select>
-            </span>
-        </div>
-        <div class="col-md-6">
-            <p>Vendors</p>
-            <table id="phone-vendors-table" style="border: 1px solid black;">
-                <tr>
-                    <td><a href="javascript:void(0)">Rogers.ca</a></td>
-                    <td>2 year contract</td>
-                    <td>$199.99</td>
-                </tr>
-                <tr>
-                    <td><a href="javascript:void(0)">Walmart.ca</a></td>
-                    <td>2 year contract</td>
-                    <td>$249.99</td>
-                </tr>
-                <tr>
-                    <td><a href="javascript:void(0)">Bestbuy.ca</a></td>
-                    <td>1 year contract</td>
-                    <td>$349.99</td>
-                </tr>
-                <tr>
-                    <td><a href="javascript:void(0)">Amazon.ca</a></td>
-                    <td>1 year contract </td>
-                    <td>$299.99 </td>
-                </tr>
-            </table>
-        </div>
+        <h4>Details</h4>
+        <br />
+        <span>
+            Carrier
+            <select id="phone-carrier-select" class="form-control vendor-phone-filter">
+                <option value="">--Carrier--</option>
+                @foreach (string carrierID in carrierIDOptions.OrderBy(c => c == "No Carrier"))
+                {
+                    <option>@carrierID</option>
+                }
+            </select>
+        </span>
+        <br />
+        <span>
+            Payment Option
+            <select id="phone-payment-option-select" class="form-control vendor-phone-filter">
+                <option value="">--Payment Option--</option>
+                @foreach (string payment in carrierPaymentOptions.Keys.OrderBy(p => p).OrderBy(p => p == "No Contract"))
+                {
+                    <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment">@payment</option>
+                }
+            </select>
+        </span>
+        <br />
+        <span>
+            Internal Memory
+            <select id="phone-memory-select" class="form-control vendor-phone-filter">
+                <option value="">--Internal Memory--</option>
+                @foreach (string memory in carrierMemoryOptions.Keys.OrderBy(m => FormatHelper.PadNumbers(m)).OrderBy(m => m == "N/A"))
+                {
+                    <option data-carrier-ids="@string.Join(",", carrierMemoryOptions[memory].ToArray())" value="@memory">@memory</option>
+                }
+            </select>
+        </span>
+        <br />
+        <span>
+            Colour
+            <select id="phone-colour-select" class="form-control vendor-phone-filter">
+                <option value="">--Colour--</option>
+                @foreach (string colour in carrierColourOptions.Keys.OrderBy(c => c).OrderBy(c => c == "N/A"))
+                {
+                    <option data-carrier-ids="@string.Join(",", carrierColourOptions[colour].ToArray())" value="@colour">@colour</option>
+                }
+            </select>
+        </span>
+    </div>
+    <div class="col-md-9">
+        <h4>Vendors</h4>
+        <hr />
+        @Html.AjaxGrid(Url.Action("VendorPhonesGrid", new { PhoneModelID = Model.PhoneModelID }))
     </div>
 </div>
 <div class="row">

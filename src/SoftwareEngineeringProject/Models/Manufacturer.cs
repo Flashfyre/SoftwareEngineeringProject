@@ -22,6 +22,7 @@ namespace SoftwareEngineeringProject.Models
             "Alcatel",
             "Apple",
             "Blackberry",
+            "BLU Mobile",
             "Doro",
             "Google",
             "Huawei",

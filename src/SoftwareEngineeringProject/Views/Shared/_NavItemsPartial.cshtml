@@ -5,6 +5,11 @@
 <li><a asp-area="" asp-controller="Search" asp-action="">Browse</a></li>
 @if (SignInManager.IsSignedIn(User))
 {
+    ApplicationUser user = await UserManager.GetUserAsync(User);
     <li><a asp-area="" asp-controller="Wishlist" asp-action="">My Wishlist</a></li>
+    @if (await UserManager.IsInRoleAsync(user, "Administrator"))
+    {
+        <li><a asp-area="" asp-controller="Admin" asp-action="">Administration</a></li>
+    }
 }
 <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
