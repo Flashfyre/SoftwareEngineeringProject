@@ -65,7 +65,7 @@ namespace SoftwareEngineeringProject.Models
         {
             get
             {
-                string[] restrictions = Restrictions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] restrictions = Restrictions != null ? Restrictions.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
                 string ret = restrictions.Length > 0 ? "<br />" : string.Empty;
 
                 foreach (string r in restrictions)

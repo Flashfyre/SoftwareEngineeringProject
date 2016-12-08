@@ -40,6 +40,14 @@ namespace SoftwareEngineeringProject.Models
                 return new object[] { PhoneModelID, ManufacturerID, OperatingSystem, ReleaseDate, LastUpdatedDate };
             }
         }
+        [NotMapped]
+        public string PhoneModelIDWithManufacturer
+        {
+            get
+            {
+                return string.Format("{0}{1}", PhoneModelID.ToLower().Contains(ManufacturerID.ToLower()) ? "" : ManufacturerID + " ", PhoneModelID);
+            }
+        }
 
         public void SetOperatingSystem(string os, ICollection<PhoneModel> allPhoneModels, SqlConnection conn)
         {
@@ -48,6 +56,12 @@ namespace SoftwareEngineeringProject.Models
                 Match versionMatch;
                 if (!Regex.IsMatch(os, "^Android [0-9x\\.]+( \\([a-z ]+\\))?$", RegexOptions.IgnoreCase))
                 {
+                    if (os.EndsWith(" Operating System"))
+                        os = os.Substring(0, os.IndexOf(" Operating System"));
+                    if (os.Contains(" OS; v"))
+                        os = os.Replace("OS; ", string.Empty);
+                    if (Regex.IsMatch(os, " v[0-9x\\.]+"))
+                        os = Regex.Replace(os, " v([0-9x\\.]+)", " $1");
                     if (Regex.IsMatch(os, "^Android( [0-9x\\.]+)? [a-z ]+$", RegexOptions.IgnoreCase))
                         os = string.Format("{0} ({1})", os.Substring(0, os.LastIndexOf(" ")), os.Substring(os.LastIndexOf(" ") + 1));
                     else if (Regex.IsMatch(os, "^Android [a-z ]+ [0-9x\\.]+$", RegexOptions.IgnoreCase))

@@ -7,40 +7,53 @@
 
 @{
     ViewData["Title"] = Model.PhoneModelID + " - Details";
-    string[] imageURLs = Model.Phones.First().GetImageURLs();
+
+    Dictionary<string, List<string>> imageURLColours = new Dictionary<string, List<string>>();
+    IEnumerable<string> phoneColours = Model.Phones.Select(p => p.Colour).Distinct();
+    foreach (string c in phoneColours) {
+        string[] imageURLs = Model.Phones.FirstOrDefault(p => p.Colour == c).GetImageURLs();
+        foreach (string i in imageURLs) {
+            if (!imageURLColours.Any(iurlc => iurlc.Key == i)) {
+                imageURLColours.Add(i, new List<string>() { c });
+            } else
+            {
+                imageURLColours[i].Add(c);
+            }
+        }
+    }
 
     ApplicationUser user = await userManager.GetUserAsync(Context.User);
     bool isPhoneInWishlist = user != null && savedPhoneModels.GetAllForUserID(user.Id).Any(spm => spm.PhoneModelID == Model.PhoneModelID);
     IEnumerable<VendorPhone> vendorPhones = Model.Phones.SelectMany(p => p.VendorPhones);
     IEnumerable<string> carrierIDOptions = vendorPhones.Select(vp => vp.CarrierID).Distinct().ToList();
     IEnumerable<string> vendorIDOptions = vendorPhones.Select(vp => vp.VendorID).Distinct();
-    Dictionary<string, List<string>> carrierPaymentOptions = new Dictionary<string, List<string>>();
-    Dictionary<string, List<string>> carrierMemoryOptions = new Dictionary<string, List<string>>();
-    Dictionary<string, List<string>> carrierColourOptions = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> paymentOptionCarriers = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> memoryOptionCarriers = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> colourOptionCarriers = new Dictionary<string, List<string>>();
 
     foreach (VendorPhone vp in vendorPhones)
     {
-        if (!carrierPaymentOptions.ContainsKey(vp.PaymentType)) {
-            carrierPaymentOptions.Add(vp.PaymentType, new List<string>() { vp.CarrierID });
-        } else if (!carrierPaymentOptions.Keys.Contains(vp.PaymentType))
+        if (!paymentOptionCarriers.ContainsKey(vp.PaymentType)) {
+            paymentOptionCarriers.Add(vp.PaymentType, new List<string>() { vp.CarrierID });
+        } else if (!paymentOptionCarriers[vp.PaymentType].Contains(vp.PaymentType))
         {
-            carrierPaymentOptions[vp.PaymentType].Add(vp.CarrierID);
+            paymentOptionCarriers[vp.PaymentType].Add(vp.CarrierID);
         }
-        if (!carrierMemoryOptions.ContainsKey(vp.Phone.Memory))
+        if (!memoryOptionCarriers.ContainsKey(vp.Phone.Memory))
         {
-            carrierMemoryOptions.Add(vp.Phone.Memory, new List<string>() { vp.CarrierID });
+            memoryOptionCarriers.Add(vp.Phone.Memory, new List<string>() { vp.CarrierID });
         }
-        else if (!carrierMemoryOptions.Keys.Contains(vp.Phone.Memory))
+        else if (!memoryOptionCarriers[vp.Phone.Memory].Contains(vp.Phone.Memory))
         {
-            carrierMemoryOptions[vp.Phone.Memory].Add(vp.CarrierID);
+            memoryOptionCarriers[vp.Phone.Memory].Add(vp.CarrierID);
         }
-        if (!carrierColourOptions.ContainsKey(vp.Phone.Colour))
+        if (!colourOptionCarriers.ContainsKey(vp.Phone.Colour))
         {
-            carrierColourOptions.Add(vp.Phone.Colour, new List<string>() { vp.CarrierID });
+            colourOptionCarriers.Add(vp.Phone.Colour, new List<string>() { vp.CarrierID });
         }
-        else if (!carrierColourOptions.Keys.Contains(vp.Phone.Colour))
+        else if (!colourOptionCarriers[vp.Phone.Colour].Contains(vp.Phone.Colour))
         {
-            carrierColourOptions[vp.Phone.Colour].Add(vp.CarrierID);
+            colourOptionCarriers[vp.Phone.Colour].Add(vp.CarrierID);
         }
     }
 }
@@ -48,7 +61,14 @@
 <link href="~/css/phone.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">
-    $(document).ready(function() {
+    var phoneImageIndicators = [];
+    var phoneImageItems = [];
+
+    $(document).ready(function () {
+        phoneImageIndicators = $("#phone-images-carousel > .carousel-indicators > li").toArray();
+        phoneImageItems = $("#phone-images-carousel > .carousel-inner > .item").toArray();
+        $("#phone-images-carousel > .carousel-indicators > li:first, #phone-images-carousel > .carousel-inner > .item:first").addClass("active");
+
         $("#phone-carrier-select").change(function () {
             var carrierID = $(this).val();
             $("option[data-carrier-ids]").each(function () {
@@ -104,6 +124,19 @@
                     break;
                 case "phone-colour-select":
                     tableHeaderIndex = 9;
+                    var showAll = $(this).val() == "";
+                    $("#phone-images-carousel > .carousel-indicators > li, #phone-images-carousel > .carousel-inner > .item").removeClass("active").remove();
+                    for (var i = 0; i < phoneImageItems.length; i++) {
+                        if (showAll || $(phoneImageItems[i]).data("colours").indexOf($(this).val()) > -1) {
+                            $("#phone-images-carousel > .carousel-indicators").append(phoneImageIndicators[i]);
+                            $("#phone-images-carousel > .carousel-inner").append(phoneImageItems[i]);
+                        }
+                    }
+                    $("#phone-images-carousel > .carousel-indicators > li:first, #phone-images-carousel > .carousel-inner > .item:first").addClass("active");
+                    if ($("#phone-images-carousel > .carousel-inner").children().length > 1)
+                        $("#phone-images-carousel > a").show();
+                    else
+                        $("#phone-images-carousel > a").hide();
                     break;
                 default:
                     break;
@@ -176,25 +209,24 @@
 </script>
 
 <div class="row">
-    <h2>@Model.PhoneModelID</h2>
+    <h2>@Model.PhoneModelIDWithManufacturer</h2>
     <hr />
     <div id="phone-image-container" class="col-md-3">
         <div id="phone-images-carousel" class="carousel slide" data-ride="carousel" data-interval="6000">
             <ol class="carousel-indicators">
-                @for (int u = 0; u < imageURLs.Count(); u++)
-                {
-                    <li data-target="#phone-images-carousel" data-slide-to="@u"@{@Html.Raw(u == 0 ? "class=\"active\"" : "");}></li>
+                @for (int i = 0; i < imageURLColours.Keys.Count; i++) {
+                     <li data-target="#phone-images-carousel" data-slide-to="@i"></li>
                 }
             </ol>
             <div class="carousel-inner" role="listbox">
-                @for (int u = 0; u < imageURLs.Count(); u++)
+                @foreach (string i in imageURLColours.Keys)
                 {
-                    <div class="@("item" + (u == 0 ? " active" : ""))">
-                        <img src="@imageURLs[u]" class="img-responsive" />
+                    <div class="item" data-colours="@string.Format("|{0}|", string.Join("|", imageURLColours[i]))">
+                        <img src="@i" class="img-responsive" />
                     </div>
                 }
             </div>
-            @if (imageURLs.Count() > 1)
+            @if (imageURLColours.Keys.Count > 1 || imageURLColours.Sum(ciurl => ciurl.Value.Count()) > 1)
             {
                 <a class="left carousel-control" href="#phone-images-carousel" role="button" data-slide="prev">
                     <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
@@ -206,6 +238,7 @@
                 </a>
             }
         </div>
+        <br />
         @if (!isPhoneInWishlist)
         {
             <button class="btn btn-success btn-block btn-wishlist@{ @Html.Raw(user == null ? " disabled" : ""); }">Add to My Wishlist</button>
@@ -235,9 +268,9 @@
             Payment Option
             <select id="phone-payment-option-select" class="form-control vendor-phone-filter">
                 <option value="">--Payment Option--</option>
-                @foreach (string payment in carrierPaymentOptions.Keys.OrderBy(p => p).OrderBy(p => p == "No Contract"))
+                @foreach (string payment in paymentOptionCarriers.Keys.OrderBy(p => p).OrderBy(p => p == "No Contract"))
                 {
-                    <option data-carrier-ids="@string.Join(",", carrierPaymentOptions[payment].ToArray())" value="@payment">@payment</option>
+                    <option data-carrier-ids="@string.Join(",", paymentOptionCarriers[payment].ToArray())" value="@payment">@payment</option>
                 }
             </select>
         </span>
@@ -246,9 +279,9 @@
             Internal Memory
             <select id="phone-memory-select" class="form-control vendor-phone-filter">
                 <option value="">--Internal Memory--</option>
-                @foreach (string memory in carrierMemoryOptions.Keys.OrderBy(m => FormatHelper.PadNumbers(m)).OrderBy(m => m == "N/A"))
+                @foreach (string memory in memoryOptionCarriers.Keys.OrderBy(m => FormatHelper.PadNumbers(m)).OrderBy(m => m == "N/A"))
                 {
-                    <option data-carrier-ids="@string.Join(",", carrierMemoryOptions[memory].ToArray())" value="@memory">@memory</option>
+                    <option data-carrier-ids="@string.Join(",", memoryOptionCarriers[memory].ToArray())" value="@memory">@memory</option>
                 }
             </select>
         </span>
@@ -257,9 +290,9 @@
             Colour
             <select id="phone-colour-select" class="form-control vendor-phone-filter">
                 <option value="">--Colour--</option>
-                @foreach (string colour in carrierColourOptions.Keys.OrderBy(c => c).OrderBy(c => c == "N/A"))
+                @foreach (string colour in colourOptionCarriers.Keys.OrderBy(c => c).OrderBy(c => c == "N/A"))
                 {
-                    <option data-carrier-ids="@string.Join(",", carrierColourOptions[colour].ToArray())" value="@colour">@colour</option>
+                    <option data-carrier-ids="@string.Join(",", colourOptionCarriers[colour].ToArray())" value="@colour">@colour</option>
                 }
             </select>
         </span>
