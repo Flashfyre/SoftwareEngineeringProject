@@ -48,6 +48,21 @@ namespace SoftwareEngineeringProject.Models
                 return string.Format("{0}{1}", PhoneModelID.ToLower().Contains(ManufacturerID.ToLower()) ? "" : ManufacturerID + " ", PhoneModelID);
             }
         }
+        [NotMapped]
+        public string FirstImageURL
+        {
+            get
+            {
+                string phoneImageURL = "/images/Default.png";
+                foreach (Phone phone in Phones)
+                {
+                    phoneImageURL = phone.GetImageURL();
+                    if (phoneImageURL != "/images/Default.png")
+                        break;
+                }
+                return phoneImageURL;
+            }
+        }
 
         public void SetOperatingSystem(string os, ICollection<PhoneModel> allPhoneModels, SqlConnection conn)
         {

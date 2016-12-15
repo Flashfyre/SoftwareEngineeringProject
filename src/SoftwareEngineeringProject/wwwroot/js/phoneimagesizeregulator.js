@@ -10,10 +10,10 @@
             $(this).addClass("resized");
             if ($(this).width() < $(this).height()) {
                 var width = $(this).width();
-                $(this).css({ "height": width + "px", "width": "auto" }).attr("data-height", width).addClass("height-resized");
+                $(this).css({ "height": (width - 1) + "px", "width": "auto" }).attr("data-height", width).addClass("height-resized");
             } else {
                 var height = $(this).height();
-                $(this).css({ "width": height + "px", "height": "auto" }).attr("data-width", height).addClass("width-resized");
+                $(this).css({ "width": (height - 1) + "px", "height": "auto" }).attr("data-width", height).addClass("width-resized");
             }
         }
     }

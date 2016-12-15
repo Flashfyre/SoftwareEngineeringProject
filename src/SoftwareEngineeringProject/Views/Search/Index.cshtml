@@ -139,6 +139,10 @@
                             $("#phone-images-carousel > .carousel-inner").append('<div class="item"><img src="' + data[1][i] + '" class="img-responsive" /></div>')
                         }
                     }
+                    if ($("#phone-images-carousel > .carousel-inner").children().length > 1)
+                        $("#phone-images-carousel > a").show();
+                    else
+                        $("#phone-images-carousel > a").hide();
                 } else // If the operation failed, display an error message
                     alert(data[1][0]);
             },
@@ -331,7 +335,7 @@
                              data-os-ids="@Html.Raw(phoneModel.OperatingSystem + (osInclusions.Any() ? "," + string.Join(",", osInclusions) : ""))"
                              data-memory-ids="@string.Join(",", phoneModel.Phones.Select(p => p.Memory).Distinct().OrderBy(m => FormatHelper.PadNumbers(m)).ToArray())">
                             <a href="javascript:void(0)" data-phone-model-id="@phoneModel.PhoneModelID">
-                                <img class="phone-image" src="@phoneModel.Phones.First().GetImageURL()" />
+                                <img class="phone-image" src="@phoneModel.FirstImageURL" />
                                 <br />
                                 <h4>@phoneModel.PhoneModelIDWithManufacturer</h4>
                             </a>
